@@ -1,5 +1,11 @@
+using Chair.BLL.BusinessLogic.ExecutorService;
+using Chair.BLL.Extensions.FluentValidation;
+using Chair.BLL.Extensions.MediatR;
 using Chair.DAL.Data;
 using Chair.DAL.Data.Entities;
+using Chair.DAL.Repositories.ExecutorService;
+using Chair.Infrastructure;
+using Chair.Middllewares;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +17,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddAutoMapper(typeof(AppMappingProfile));
+builder.Services.RegisterMediatr()
+    .RegisterMediatrValidationPipeline()
+    .RegisterMediatrTransactionPipeline();
+builder.Services.RegisterFluentValidationValidators();
 // Add services to the container.
+
+builder.Services.AddScoped<IExecutorServiceBusinessLogic, ExecutorServiceBusinessLogic>();
+builder.Services.AddScoped<IExecutorServiceRepository, ExecutorServiceRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -31,6 +45,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
