@@ -58,4 +58,9 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : BaseEntit
         await RemoveAsync(entity);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<int> SaveChangesAsync()
+    {
+        return await _dbContext.SaveChangesAsync();
+    }
 }

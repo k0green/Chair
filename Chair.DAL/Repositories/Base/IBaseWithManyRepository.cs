@@ -26,5 +26,7 @@ namespace Chair.DAL.Repositories.Base
 
         public Task RemoveByIdAsync(Guid id);
         public Task RemoveManyByIdsAsync(List<Guid> ids);
+
+        Task<int> SaveChangesAsync();
     }
 }

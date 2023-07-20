@@ -27,6 +27,9 @@ builder.Services.RegisterFluentValidationValidators();
 builder.Services.AddScoped<IExecutorServiceBusinessLogic, ExecutorServiceBusinessLogic>();
 builder.Services.AddScoped<IExecutorServiceRepository, ExecutorServiceRepository>();
 
+builder.Services.AddScoped<IServiceTypeBusinessLogic, ServiceTypeBusinessLogic>();
+builder.Services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

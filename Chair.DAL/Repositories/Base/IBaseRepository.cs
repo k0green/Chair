@@ -20,5 +20,7 @@ namespace Chair.DAL.Repositories.Base
 
         public Task RemoveAsync(T model);
         public Task RemoveByIdAsync(Guid id);
+
+        Task<int> SaveChangesAsync();
     }
 }

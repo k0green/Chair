@@ -84,4 +84,9 @@ public abstract class BaseWithManyRepository<T> : IBaseWithManyRepository<T> whe
         await RemoveManyAsync(await entities.ToListAsync());
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<int> SaveChangesAsync()
+    {
+        return await _dbContext.SaveChangesAsync();
+    }
 }
