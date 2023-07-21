@@ -17,7 +17,7 @@ namespace Chair.BLL.BusinessLogic.Account
 
         public async Task Register(RegisterDto model)
         {
-            var user = new User { Email = model.Email, UserName = model.Email, PhoneNumber = model.Phone };
+            var user = new User { Email = model.Email, UserName = model.Email, PhoneNumber = model.Phone, AccountName = model.Name};
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
