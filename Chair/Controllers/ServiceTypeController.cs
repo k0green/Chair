@@ -13,10 +13,10 @@ namespace Chair.Controllers
     public class ServiceTypeController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<ExecutorServiceController> _logger;
+        private readonly ILogger<ServiceTypeController> _logger;
 
         public ServiceTypeController(IMediator mediator,
-            ILogger<ExecutorServiceController> logger)
+            ILogger<ServiceTypeController> logger)
         {
             _logger = logger;
             _mediator = mediator;
