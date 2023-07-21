@@ -1,3 +1,4 @@
+using Chair.BLL.BusinessLogic.Account;
 using Chair.BLL.BusinessLogic.ExecutorService;
 using Chair.BLL.Extensions.FluentValidation;
 using Chair.BLL.Extensions.MediatR;
@@ -29,6 +30,8 @@ builder.Services.AddScoped<IExecutorServiceRepository, ExecutorServiceRepository
 
 builder.Services.AddScoped<IServiceTypeBusinessLogic, ServiceTypeBusinessLogic>();
 builder.Services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
+
+builder.Services.AddScoped<IAccountBusinessLogic, AccountBusinessLogic>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
