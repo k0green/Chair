@@ -1,11 +1,9 @@
-﻿using Chair.BLL.CQRS.ExecutorService;
-using Chair.BLL.CQRS.ServiceType;
+﻿using Chair.BLL.CQRS.ServiceType;
 using Chair.DAL.Data;
-using Microsoft.EntityFrameworkCore.Query;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chair.BLL.Validation.ExecutorService
+namespace Chair.BLL.Validation.Account
 {
     public class LoginValidator : AbstractValidator<LoginQuery>
     {
@@ -18,7 +16,7 @@ namespace Chair.BLL.Validation.ExecutorService
 
             RuleFor(x => x.LoginDto.Email).MustAsync(async (email, token) =>
             {
-                var user = await _context.Users.FirstOrDefaultAsync(x=> x.Email == email);
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
 
                 return user != null;
             }).WithMessage("user with login: {PropertyValue} doesn't exists");

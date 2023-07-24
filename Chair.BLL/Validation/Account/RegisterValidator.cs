@@ -1,12 +1,10 @@
-﻿using Chair.BLL.CQRS.ExecutorService;
-using Chair.BLL.CQRS.ServiceType;
+﻿using Chair.BLL.CQRS.ServiceType;
 using Chair.DAL.Data;
-using Microsoft.EntityFrameworkCore.Query;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
-namespace Chair.BLL.Validation.ExecutorService
+namespace Chair.BLL.Validation.Account
 {
     public class RegisterValidator : AbstractValidator<RegisterQuery>
     {
