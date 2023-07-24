@@ -33,8 +33,10 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
 
         public async Task<ExecutorProfileDto> GetExecutorProfileById(Guid id)
         {
-            var executorProfile = await _executorProfileRepository.GetAllByPredicateAsQueryable(x => x.Id == id)
-                .Include(x => x.User).FirstOrDefaultAsync();
+            var executorProfile = await _executorProfileRepository
+                .GetAllByPredicateAsQueryable(x => x.Id == id)
+                .Include(x => x.User)
+                .FirstOrDefaultAsync();
             var executorProfileDto = _mapper.Map<ExecutorProfileDto>(executorProfile);
             return executorProfileDto;
         }

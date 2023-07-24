@@ -9,6 +9,7 @@ namespace Chair.DAL.Data
         public DbSet<ServiceType> ServiceTypes { get; set; }
         public DbSet<ExecutorService> ExecutorServices { get; set; }
         public DbSet<ExecutorProfile> ExecutorProfiles { get; set; }
+        public DbSet<Image> Images { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -33,6 +34,11 @@ namespace Chair.DAL.Data
                 .HasOne(es => es.User)
                 .WithMany()
                 .HasForeignKey(es => es.UserId);
+
+            modelBuilder.Entity<Image>()
+                .HasOne(i => i.ExecutorService)
+                .WithMany(es => es.Images)
+                .HasForeignKey(es => es.ObjectId);
         }
     }
 }

@@ -14,6 +14,9 @@ namespace Chair.Infrastructure
             CreateMap<ExecutorService, ExecutorServiceDto>()
                 .ForMember(dest => dest.ServiceTypeName, opt => opt.MapFrom(src => src.ServiceType.Name))
                 .ReverseMap();
+            CreateMap<ExecutorService, ExecutorServiceDto>()
+                .ForMember(dest => dest.ImageURLs, opt => opt.MapFrom(src => src.Images.Select(x=>x.URL)))
+                .ReverseMap();
             CreateMap<ExecutorService, UpdateExecutorServiceDto>().ReverseMap();
             CreateMap<ExecutorService, AddExecutorServiceDto>().ReverseMap();
             #endregion

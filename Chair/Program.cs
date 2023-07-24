@@ -38,6 +38,8 @@ builder.Services.AddScoped<IAccountBusinessLogic, AccountBusinessLogic>();
 builder.Services.AddScoped<IExecutorProfileBusinessLogic, ExecutorProfileBusinessLogic>();
 builder.Services.AddScoped<IExecutorProfileRepository, ExecutorProfileRepository>();
 
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
