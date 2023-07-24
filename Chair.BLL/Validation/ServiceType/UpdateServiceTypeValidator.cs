@@ -1,11 +1,9 @@
-﻿using Chair.BLL.CQRS.ExecutorService;
-using Chair.BLL.CQRS.ServiceType;
+﻿using Chair.BLL.CQRS.ServiceType;
 using Chair.DAL.Data;
-using Microsoft.EntityFrameworkCore.Query;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chair.BLL.Validation.ExecutorService
+namespace Chair.BLL.Validation.ServiceType
 {
     public class UpdateServiceTypeValidator : AbstractValidator<UpdateServiceTypeQuery>
     {

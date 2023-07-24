@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.ServiceType;
-using Chair.DAL.Data.Entities;
 using Chair.DAL.Repositories.ExecutorService;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chair.BLL.BusinessLogic.ExecutorService
+namespace Chair.BLL.BusinessLogic.ServiceType
 {
     public class ServiceTypeBusinessLogic : IServiceTypeBusinessLogic
     {
@@ -37,7 +35,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 
         public async Task<Guid> AddAsync(AddServiceTypeDto dto)
         {
-            var entity = _mapper.Map<ServiceType>(dto);
+            var entity = _mapper.Map<DAL.Data.Entities.ServiceType>(dto);
             entity.Id = Guid.NewGuid();
             await _serviceTypeRepository.AddAsync(entity);
             await _serviceTypeRepository.SaveChangesAsync();
@@ -46,7 +44,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 
         public async Task UpdateAsync(ServiceTypeDto dto)
         {
-            var entity = _mapper.Map<ServiceType>(dto);
+            var entity = _mapper.Map<DAL.Data.Entities.ServiceType>(dto);
             await _serviceTypeRepository.UpdateAsync(entity);
             await _serviceTypeRepository.SaveChangesAsync();
         }

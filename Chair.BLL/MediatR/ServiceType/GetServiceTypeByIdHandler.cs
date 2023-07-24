@@ -1,4 +1,4 @@
-﻿using Chair.BLL.BusinessLogic.ExecutorService;
+﻿using Chair.BLL.BusinessLogic.ServiceType;
 using Chair.BLL.CQRS.ServiceType;
 using Chair.BLL.Dto.ServiceType;
 using MediatR;

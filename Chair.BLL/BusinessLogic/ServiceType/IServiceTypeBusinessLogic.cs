@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Chair.BLL.Dto.ServiceType;
 using Chair.DAL.Data.Entities;
 
-namespace Chair.BLL.BusinessLogic.ExecutorService
+namespace Chair.BLL.BusinessLogic.ServiceType
 {
     public interface IServiceTypeBusinessLogic
     {

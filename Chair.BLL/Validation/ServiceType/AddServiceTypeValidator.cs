@@ -1,11 +1,9 @@
-﻿using Chair.BLL.CQRS.ExecutorService;
-using Chair.BLL.CQRS.ServiceType;
+﻿using Chair.BLL.CQRS.ServiceType;
 using Chair.DAL.Data;
-using Microsoft.EntityFrameworkCore.Query;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chair.BLL.Validation.ExecutorService
+namespace Chair.BLL.Validation.ServiceType
 {
     public class AddServiceTypeValidator : AbstractValidator<AddServiceTypeQuery>
     {
@@ -18,7 +16,7 @@ namespace Chair.BLL.Validation.ExecutorService
 
             RuleFor(x => x.AddServiceTypeDto).MustAsync(async (dto, token) =>
             {
-                var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x=> x.Name == dto.Name);
+                var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Name == dto.Name);
 
                 return serviceType == null;
             }).WithMessage("service with name: {PropertyValue} exists");
