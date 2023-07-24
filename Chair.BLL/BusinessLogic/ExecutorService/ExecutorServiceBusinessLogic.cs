@@ -17,7 +17,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             _mapper = mapper;
         }
 
-        public async Task<List<ExecutorServiceDto>> GetAllServicesByExecutorId(string executorId)
+        public async Task<List<ExecutorServiceDto>> GetAllServicesByExecutorId(Guid executorId)
         {
             var executorServices = await _executorServiceRepository
                 .GetAllByPredicateAsQueryable(x => x.ExecutorId == executorId).ToListAsync();

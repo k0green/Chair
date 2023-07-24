@@ -6,7 +6,7 @@ namespace Chair.BLL.Dto.ExecutorService
     {
         public Guid ServiceTypeId { get; set; }
         public string ServiceTypeName { get; set; }
-        public string ExecutorId { get; set; }
+        public Guid ExecutorId { get; set; }
         public string Description { get; set; }
     }
 }

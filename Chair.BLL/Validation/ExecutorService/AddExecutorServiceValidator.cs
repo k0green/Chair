@@ -1,7 +1,5 @@
-﻿using Chair.BLL.CQRS.ExecutorService;
-using Chair.BLL.CQRS.ServiceType;
+﻿using Chair.BLL.CQRS.ServiceType;
 using Chair.DAL.Data;
-using Microsoft.EntityFrameworkCore.Query;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,10 +16,17 @@ namespace Chair.BLL.Validation.ExecutorService
 
             RuleFor(x => x.AddExecutorServiceDto.ServiceTypeId).MustAsync(async (id, token) =>
             {
-                var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x=> x.Id == id);
+                var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == id);
 
                 return serviceType != null;
             }).WithMessage("service with id: {PropertyValue} doesn't exists");
+
+            RuleFor(x => x.AddExecutorServiceDto.ExecutorId).MustAsync(async (id, token) =>
+            {
+                var userProfile = await _context.ExecutorProfiles.FirstOrDefaultAsync(x => x.Id == id);
+
+                return userProfile != null;
+            }).WithMessage("user profile with id: {PropertyValue} doesn't exists");
         }
     }
 }

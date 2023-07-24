@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Chair.BLL.BusinessLogic.ExecutorService;
+﻿using Chair.BLL.BusinessLogic.ExecutorService;
 using Chair.BLL.CQRS.ExecutorService;
 using Chair.BLL.Dto.ExecutorService;
 using MediatR;

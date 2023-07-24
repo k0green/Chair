@@ -1,7 +1,5 @@
-﻿using Chair.BLL.CQRS.ExecutorService;
-using Chair.BLL.CQRS.ServiceType;
+﻿using Chair.BLL.CQRS.ServiceType;
 using Chair.DAL.Data;
-using Microsoft.EntityFrameworkCore.Query;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +14,7 @@ namespace Chair.BLL.Validation.ExecutorService
 
             RuleFor(x => x.Id).MustAsync(async (id, token) =>
             {
-                var executorService = await _context.ExecutorServices.FirstOrDefaultAsync(x=> x.Id == id);
+                var executorService = await _context.ExecutorServices.FirstOrDefaultAsync(x => x.Id == id);
 
                 return executorService != null;
             }).WithMessage("Executor service with Id: {PropertyValue} doesn't exist");

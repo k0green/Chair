@@ -1,9 +1,8 @@
 ﻿using Chair.BLL.BusinessLogic.ExecutorService;
 using Chair.BLL.CQRS.ServiceType;
-using Chair.BLL.Dto.ServiceType;
 using MediatR;
 
-namespace Chair.BLL.MediatR.ServiceType
+namespace Chair.BLL.MediatR.ExecutorService
 {
     public class UpdateExecutorServiceHandler : IRequestHandler<UpdateExecutorServiceQuery, Unit>
     {

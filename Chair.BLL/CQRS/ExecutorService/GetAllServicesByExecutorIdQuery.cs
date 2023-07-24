@@ -5,6 +5,6 @@ namespace Chair.BLL.CQRS.ExecutorService
 {
     public class GetAllServicesByExecutorIdQuery : IRequest<List<ExecutorServiceDto>>
     {
-        public string ExecutorId { get; set; }
+        public Guid ExecutorId { get; set; }
     }
 }

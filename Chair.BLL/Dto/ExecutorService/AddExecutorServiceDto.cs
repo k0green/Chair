@@ -3,6 +3,7 @@
     public class AddExecutorServiceDto
     {
         public Guid ServiceTypeId { get; set; }
+        public Guid ExecutorId { get; set; }
         public string Description { get; set; }
     }
 }

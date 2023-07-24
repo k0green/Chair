@@ -9,7 +9,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 {
     public interface IExecutorServiceBusinessLogic
     {
-        Task<List<ExecutorServiceDto>> GetAllServicesByExecutorId(string executorId);
+        Task<List<ExecutorServiceDto>> GetAllServicesByExecutorId(Guid executorId);
         Task<ExecutorServiceDto> GetExecutorServiceById(Guid id);
 
         Task<Guid> AddAsync(AddExecutorServiceDto dto);

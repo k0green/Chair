@@ -24,7 +24,7 @@ namespace Chair.Controllers
         [HttpGet]
         [Route("{executorId}")]
         [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllByContractId([FromRoute] string executorId)
+        public async Task<IActionResult> GetAllByContractId([FromRoute] Guid executorId)
         {
             var query = new GetAllServicesByExecutorIdQuery() { ExecutorId = executorId };
             var result = await _mediator.Send(query);
