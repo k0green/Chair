@@ -25,6 +25,15 @@ namespace Chair.Infrastructure
             CreateMap<ServiceType, AddServiceTypeDto>().ReverseMap();
 
             #endregion
+
+            #region ExecutorProfile
+
+            CreateMap<ExecutorProfile, ExecutorProfileDto>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.AccountName))
+                .ReverseMap();
+            CreateMap<ExecutorProfile, UpdateExecutorProfileDto>().ReverseMap();
+            CreateMap<ExecutorProfile, AddExecutorProfileDto>().ReverseMap();
+            #endregion
         }
     }
 }

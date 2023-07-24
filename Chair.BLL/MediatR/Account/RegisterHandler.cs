@@ -2,7 +2,7 @@
 using Chair.BLL.CQRS.ServiceType;
 using MediatR;
 
-namespace Chair.BLL.MediatR.ServiceType
+namespace Chair.BLL.MediatR.Account
 {
     public class RegisterHandler : IRequestHandler<RegisterQuery, Unit>
     {
