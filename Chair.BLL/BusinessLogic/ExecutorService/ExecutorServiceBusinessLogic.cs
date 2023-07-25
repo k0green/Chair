@@ -2,6 +2,7 @@
 using Chair.BLL.Dto.ExecutorService;
 using Chair.DAL.Data.Entities;
 using Chair.DAL.Repositories.ExecutorService;
+using Chair.DAL.Repositories.Image;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chair.BLL.BusinessLogic.ExecutorService

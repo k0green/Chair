@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Chair.BLL.Dto.ServiceType;
 using Chair.DAL.Repositories.ExecutorService;
+using Chair.DAL.Repositories.ServiceType;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chair.BLL.BusinessLogic.ServiceType

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Chair.BLL.Dto.Contacts;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.ServiceType;
 using Chair.DAL.Data.Entities;
@@ -33,9 +34,20 @@ namespace Chair.Infrastructure
 
             CreateMap<ExecutorProfile, ExecutorProfileDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.AccountName))
+                .ForMember(dest => dest.Contacts, opt => opt.MapFrom(src => src.Contacts))
                 .ReverseMap();
             CreateMap<ExecutorProfile, UpdateExecutorProfileDto>().ReverseMap();
             CreateMap<ExecutorProfile, AddExecutorProfileDto>().ReverseMap();
+            CreateMap<ExecutorProfile, ExecutorProfileDto>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.AccountName))
+                .ReverseMap();
+            #endregion
+
+            #region Contact
+
+            CreateMap<Contact, AddContactsDto>().ReverseMap();
+            CreateMap<Contact, ContactsDto>().ReverseMap();
+            CreateMap<Contact, UpdateContactsDto>().ReverseMap();
             #endregion
         }
     }
