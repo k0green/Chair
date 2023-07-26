@@ -1,8 +1,9 @@
-using Chair.BLL.CQRS.ExecutorService;
+﻿using Chair.BLL.Commons;
 using Chair.BLL.CQRS.Order;
 using Chair.BLL.Dto.Order;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Chair.Controllers
 {
@@ -12,12 +13,15 @@ namespace Chair.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<OrderController> _logger;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
         public OrderController(IMediator mediator,
-            ILogger<OrderController> logger)
+        IHubContext<NotificationHub> hubContext,
+        ILogger<OrderController> logger)
         {
             _logger = logger;
             _mediator = mediator;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -45,11 +49,11 @@ namespace Chair.Controllers
         [HttpPost]
         [Route("add")]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
-        public async Task<IActionResult> Create([FromBody] List<AddOrderDto> addOrderDtos)
+        public async Task<IActionResult> AddMany([FromBody] List<AddOrderDto> addOrderDtos)
         {
             var command = new AddOrderQuery() { AddOrderDtos = addOrderDtos };
             var result = await _mediator.Send(command);
-
+            await _hubContext.Clients.All.SendAsync("ReceiveReviewNotification", "Новый отзыв добавлен");
             return Ok(result);
         }
 
@@ -60,7 +64,7 @@ namespace Chair.Controllers
         {
             var command = new UpdateOrderQuery() { UpdateOrderDto = updateOrderDto };
             await _mediator.Send(command);
-
+            await _hubContext.Clients.All.SendAsync("ReceiveReviewNotification", "отзыв обновлен");
             return NoContent();
         }
 
@@ -71,7 +75,7 @@ namespace Chair.Controllers
         {
             var command = new RemoveOrderQuery() { Id = id };
             await _mediator.Send(command);
-
+            await _hubContext.Clients.All.SendAsync("ReceiveReviewNotification", "отзыв удален");
             return NoContent();
         }
     }
