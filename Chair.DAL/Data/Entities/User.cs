@@ -6,5 +6,6 @@ namespace Chair.DAL.Data.Entities
     {
         public string AccountName { get; set; }
         public ICollection<ExecutorService> ExecutorServices { get; set; }
+        public ICollection<Order> Orders { get; set; }
     }
 }

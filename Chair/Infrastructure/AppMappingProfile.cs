@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Chair.BLL.Dto.Contacts;
 using Chair.BLL.Dto.ExecutorService;
+using Chair.BLL.Dto.Order;
 using Chair.BLL.Dto.Review;
 using Chair.BLL.Dto.ServiceType;
 using Chair.DAL.Data.Entities;
@@ -59,6 +60,19 @@ namespace Chair.Infrastructure
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ExecutorService.Executor.User.AccountName))
                 .ReverseMap();
             CreateMap<Review, UpdateReviewDto>().ReverseMap();
+
+            #endregion
+
+            #region Order
+
+            CreateMap<Order, AddOrderDto>().ReverseMap();
+            CreateMap<Order, OrderDto>()
+                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.User.AccountName))
+                .ForMember(dest => dest.ExecutorProfileName, opt => opt.MapFrom(src => src.ExecutorService.Executor.Name))
+                .ForMember(dest => dest.ServiceTypeName, opt => opt.MapFrom(src => src.ExecutorService.ServiceType.Name))
+                .ForMember(dest => dest.ExecutorName, opt => opt.MapFrom(src => src.ExecutorService.Executor.User.AccountName))
+                .ReverseMap();
+            CreateMap<Order, UpdateOrderDto>().ReverseMap();
 
             #endregion
         }

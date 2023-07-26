@@ -16,5 +16,6 @@ namespace Chair.DAL.Data.Entities
         public ExecutorProfile Executor { get; set; }
         public ICollection<Image> Images { get; set; }
         public ICollection<Review> Reviews { get; set; }
+        public ICollection<Order> Orders { get; set; }
     }
 }

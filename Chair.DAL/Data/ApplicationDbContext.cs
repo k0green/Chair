@@ -12,6 +12,7 @@ namespace Chair.DAL.Data
         public DbSet<Image> Images { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -51,6 +52,16 @@ namespace Chair.DAL.Data
                 .HasOne(es => es.ExecutorService)
                 .WithMany(st => st.Reviews)
                 .HasForeignKey(es => es.ExecutorServiceId);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(es => es.ExecutorService)
+                .WithMany(st => st.Orders)
+                .HasForeignKey(es => es.ExecutorServiceId);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(es => es.User)
+                .WithMany(st => st.Orders)
+                .HasForeignKey(es => es.ClientId);
         }
     }
 }
