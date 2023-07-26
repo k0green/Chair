@@ -1,6 +1,7 @@
 using Chair.BLL.BusinessLogic.Account;
 using Chair.BLL.BusinessLogic.ExecutorProfile;
 using Chair.BLL.BusinessLogic.ExecutorService;
+using Chair.BLL.BusinessLogic.Review;
 using Chair.BLL.BusinessLogic.ServiceType;
 using Chair.BLL.Extensions.FluentValidation;
 using Chair.BLL.Extensions.MediatR;
@@ -10,6 +11,7 @@ using Chair.DAL.Repositories.Contact;
 using Chair.DAL.Repositories.ExecutorProfile;
 using Chair.DAL.Repositories.ExecutorService;
 using Chair.DAL.Repositories.Image;
+using Chair.DAL.Repositories.Review;
 using Chair.DAL.Repositories.ServiceType;
 using Chair.Infrastructure;
 using Chair.Middllewares;
@@ -45,6 +47,9 @@ builder.Services.AddScoped<IExecutorProfileRepository, ExecutorProfileRepository
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
 
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
+
+builder.Services.AddScoped<IReviewBusinessLogic, ReviewBusinessLogic>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

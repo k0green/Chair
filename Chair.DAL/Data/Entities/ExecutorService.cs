@@ -15,5 +15,6 @@ namespace Chair.DAL.Data.Entities
         public ServiceType ServiceType { get; set; }
         public ExecutorProfile Executor { get; set; }
         public ICollection<Image> Images { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }

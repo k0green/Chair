@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Chair.BLL.Dto.Contacts;
 using Chair.BLL.Dto.ExecutorService;
+using Chair.BLL.Dto.Review;
 using Chair.BLL.Dto.ServiceType;
 using Chair.DAL.Data.Entities;
 
@@ -48,6 +49,17 @@ namespace Chair.Infrastructure
             CreateMap<Contact, AddContactsDto>().ReverseMap();
             CreateMap<Contact, ContactsDto>().ReverseMap();
             CreateMap<Contact, UpdateContactsDto>().ReverseMap();
+
+            #endregion
+
+            #region Review
+
+            CreateMap<Review, AddReviewDto>().ReverseMap();
+            CreateMap<Review, ReviewDto>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ExecutorService.Executor.User.AccountName))
+                .ReverseMap();
+            CreateMap<Review, UpdateReviewDto>().ReverseMap();
+
             #endregion
         }
     }
