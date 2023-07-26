@@ -46,7 +46,7 @@ namespace Chair.Controllers
         [HttpPost]
         [Route("add")]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
-        public async Task<IActionResult> Create([FromBody] AddExecutorServiceDto addExecutorServiceDto)
+        public async Task<IActionResult> Add([FromBody] AddExecutorServiceDto addExecutorServiceDto)
         {
             var command = new AddExecutorServiceQuery() { AddExecutorServiceDto = addExecutorServiceDto };
             var result = await _mediator.Send(command);

@@ -47,7 +47,7 @@ namespace Chair.Controllers
         [HttpPost]
         [Route("add")]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
-        public async Task<IActionResult> Create([FromBody] AddServiceTypeDto addServiceTypeDto)
+        public async Task<IActionResult> Add([FromBody] AddServiceTypeDto addServiceTypeDto)
         {
             var command = new AddServiceTypeQuery() { AddServiceTypeDto = addServiceTypeDto };
             var result = await _mediator.Send(command);
