@@ -6,6 +6,8 @@ using Chair.DAL.Repositories.Contact;
 using Chair.DAL.Repositories.Order;
 using Chair.DAL.Repositories.ExecutorService;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
+using Chair.BLL.Commons;
 
 namespace Chair.BLL.BusinessLogic.Order
 {
@@ -15,15 +17,18 @@ namespace Chair.BLL.BusinessLogic.Order
         private readonly IExecutorServiceRepository _executorServiceRepository;
         private readonly IContactRepository _contactRepository;
         private readonly IMapper _mapper;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
         public OrderBusinessLogic(IOrderRepository orderRepository,
             IExecutorServiceRepository executorServiceRepository,
             IContactRepository contactRepository,
+            IHubContext<NotificationHub> hubContext,
             IMapper mapper)
         {
             _orderRepository = orderRepository;
             _executorServiceRepository = executorServiceRepository;
             _contactRepository = contactRepository;
+            _hubContext = hubContext;
             _mapper = mapper;
         }
 
@@ -80,6 +85,44 @@ namespace Chair.BLL.BusinessLogic.Order
         {
             await _orderRepository.RemoveByIdAsync(id);
             await _orderRepository.SaveChangesAsync();
+        }
+
+        public async Task ApproveOrderAsync(Guid orderId, bool IsExecutor)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order == null)
+                throw new ArgumentNullException("Order doesnt exist");
+            string userId;
+            switch (IsExecutor)
+            {
+                case true:
+                    order.ExecutorApprove = true;
+                    userId = order.ClientId;
+                    break;
+                case false:
+                    order.ClientApprove = true;
+                    userId = order.ExecutorService.Executor.UserId;
+                    break;
+            }
+
+            await _orderRepository.UpdateAsync(order);
+            await _orderRepository.SaveChangesAsync();
+            await _hubContext.Clients.User(userId).SendAsync("ReceiveOrderNotification", "Заказ подтвержден");
+        }
+
+        public async Task CancelOrderAsync(Guid orderId)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order == null)
+                throw new ArgumentNullException("Order doesnt exist");
+            order.ClientApprove = false;
+            order.ExecutorApprove = false;
+            order.ClientId = null;
+            order.ClientComment = null;
+            await _orderRepository.UpdateAsync(order);
+
+            await _orderRepository.SaveChangesAsync();
+            await _hubContext.Clients.Users(new List<string>() { order.ClientId, order.ExecutorService.Executor.UserId }).SendAsync("ReceiveOrderNotification", "Заказ подтвержден");
         }
     }
 }

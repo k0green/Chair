@@ -78,5 +78,25 @@ namespace Chair.Controllers
             await _hubContext.Clients.All.SendAsync("ReceiveReviewNotification", "отзыв удален");
             return NoContent();
         }
+
+        [HttpPost]
+        [Route("approve")]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+        public async Task<IActionResult> Approve([FromBody] Guid orderId, bool isExecutor)
+        {
+            var command = new ApproveOrderQuery() { OrderId = orderId, IsExecutor = isExecutor};
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("cancel/{orderId:guid}")]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+        public async Task<IActionResult> Cancel([FromRoute] Guid orderId)
+        {
+            var command = new CancelOrderQuery() { OrderId = orderId };
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
     }
 }
