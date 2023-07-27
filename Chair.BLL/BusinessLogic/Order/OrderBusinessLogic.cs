@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Chair.BLL.BusinessLogic.Account;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.Order;
 using Chair.DAL.Data.Entities;
@@ -18,11 +19,13 @@ namespace Chair.BLL.BusinessLogic.Order
         private readonly IContactRepository _contactRepository;
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly UserInfo _userInfo;
 
         public OrderBusinessLogic(IOrderRepository orderRepository,
             IExecutorServiceRepository executorServiceRepository,
             IContactRepository contactRepository,
             IHubContext<NotificationHub> hubContext,
+            UserInfo userInfo,
             IMapper mapper)
         {
             _orderRepository = orderRepository;
@@ -30,6 +33,7 @@ namespace Chair.BLL.BusinessLogic.Order
             _contactRepository = contactRepository;
             _hubContext = hubContext;
             _mapper = mapper;
+            _userInfo = userInfo;
         }
 
         public async Task<List<OrderDto>> GetAllOrdersByServiceId(Guid serviceId)

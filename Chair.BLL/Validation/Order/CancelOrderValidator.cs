@@ -27,6 +27,7 @@ namespace Chair.BLL.Validation.Order
 
             RuleFor(x => x.OrderId).MustAsync(async (id, token) =>
             {
+                return true;
                 //var order = await _context.Orders.FirstOrDefaultAsync(x => x.Id == id);
                 //if (order.ClientId != CurrentUser.Id) return true;
                 //return DateTime.Now.AddHours(6) <= order.StarDate;

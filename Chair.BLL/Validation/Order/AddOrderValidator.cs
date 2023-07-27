@@ -17,39 +17,22 @@ namespace Chair.BLL.Validation.Order
 
             RuleFor(x => x.AddOrderDtos.Select(x=>x.ExecutorServiceId)).MustAsync(async (exId, token) =>
             {
-                foreach (var item in exId)
-                {
-                    var executorService = _context.ExecutorServices.FirstOrDefault(x=>x.Id == item);
-                    if (executorService == null)
-                        return false;
-                }
-
-                return true;
+                return exId.Select(item => _context.ExecutorServices.FirstOrDefault(x => x.Id == item)).All(executorService => executorService != null);
             }).WithMessage("executor service with id: {PropertyValue} doesn't exists");
 
             RuleFor(x => x.AddOrderDtos.Select(x => x.ClientId)).MustAsync(async (exId, token) =>
             {
-                foreach (var item in exId)
-                {
-                    var user = _context.Users.FirstOrDefault(x => x.Id == item);
-                    if (user == null)
-                        return false;
-                }
-
-                return true;
+                return exId.Select(item => _context.Users.FirstOrDefault(x => x.Id == item)).All(user => user != null);
             }).WithMessage("user with id: {PropertyValue} doesn't exists");
 
             RuleFor(x => x.AddOrderDtos).MustAsync(async (dtos, token) =>
             {
-                foreach (var item in dtos)
-                {
-                    var executorId = _context.ExecutorServices.Include(x => x.Executor)
-                        .First(x => x.Id == item.ExecutorServiceId).Executor.UserId;
-                    if (item.ClientId == executorId)
-                            return false;
-                }
-
-                return true;
+                return !(from item in dtos
+                    let executorId = _context.ExecutorServices.Include(x => x.Executor)
+                        .First(x => x.Id == item.ExecutorServiceId)
+                        .Executor.UserId
+                    where item.ClientId == executorId
+                    select item).Any();
             }).WithMessage("You can't book your own order");
         }
     }

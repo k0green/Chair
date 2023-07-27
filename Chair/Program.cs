@@ -4,6 +4,7 @@ using Chair.BLL.BusinessLogic.ExecutorService;
 using Chair.BLL.BusinessLogic.Order;
 using Chair.BLL.BusinessLogic.Review;
 using Chair.BLL.BusinessLogic.ServiceType;
+using Chair.BLL.Commons;
 using Chair.BLL.Extensions.FluentValidation;
 using Chair.BLL.Extensions.MediatR;
 using Chair.DAL.Data;
@@ -56,6 +57,8 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IOrderBusinessLogic, OrderBusinessLogic>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
+builder.Services.AddScoped<UserInfo>();
+
 builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
@@ -80,5 +83,7 @@ app.UseAuthorization();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
+
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();
