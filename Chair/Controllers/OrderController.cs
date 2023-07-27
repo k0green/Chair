@@ -81,7 +81,7 @@ namespace Chair.Controllers
 
         [HttpPost]
         [Route("approve")]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+        [ProducesResponseType( StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Approve([FromBody] Guid orderId, bool isExecutor)
         {
             var command = new ApproveOrderQuery() { OrderId = orderId, IsExecutor = isExecutor};
@@ -91,7 +91,7 @@ namespace Chair.Controllers
 
         [HttpPost]
         [Route("cancel/{orderId:guid}")]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+        [ProducesResponseType( StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Cancel([FromRoute] Guid orderId)
         {
             var command = new CancelOrderQuery() { OrderId = orderId };
