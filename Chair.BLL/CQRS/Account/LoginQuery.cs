@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Chair.BLL.CQRS.ServiceType
 {
-    public class LoginQuery : IRequest<Unit>
+    public class LoginQuery : IRequest<string>
     {
         public LoginDto LoginDto { get; set; }
     }

@@ -6,7 +6,7 @@ using Chair.BLL.Dto.Account;
 
 namespace Chair.BLL.CQRS.ServiceType
 {
-    public class RegisterQuery : IRequest<Unit>
+    public class RegisterQuery : IRequest<string>
     {
         public RegisterDto RegisterDto { get; set; }
     }

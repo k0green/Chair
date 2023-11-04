@@ -11,8 +11,8 @@ namespace Chair.BLL.BusinessLogic.Account
 {
     public interface IAccountBusinessLogic
     {
-        Task Register(RegisterDto model);
-        Task Login(LoginDto model);
+        Task<string> Register(RegisterDto model);
+        Task<string> Login(LoginDto model);
         Task Logout();
     }
 }
