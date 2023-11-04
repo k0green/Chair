@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Chair.BLL.BusinessLogic.Account;
+using Chair.BLL.BusinessLogic.ExecutorService;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.DAL.Data.Entities;
 using Chair.DAL.Repositories.Contact;
@@ -12,17 +14,23 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
     {
         private readonly IExecutorProfileRepository _executorProfileRepository;
         private readonly IExecutorServiceRepository _executorServiceRepository;
+        private readonly IExecutorServiceBusinessLogic _executorServiceBusiness;
         private readonly IContactRepository _contactRepository;
+        private readonly UserInfo _userInfo;
         private readonly IMapper _mapper;
 
         public ExecutorProfileBusinessLogic(IExecutorProfileRepository executorProfileRepository,
             IExecutorServiceRepository executorServiceRepository,
+            IExecutorServiceBusinessLogic executorServiceBussinesLogic,
             IContactRepository contactRepository,
+            UserInfo userInfo,
             IMapper mapper)
         {
-            _executorProfileRepository = executorProfileRepository;
             _executorServiceRepository = executorServiceRepository;
+            _executorProfileRepository = executorProfileRepository;
+            _executorServiceBusiness = executorServiceBussinesLogic;
             _contactRepository = contactRepository;
+            _userInfo = userInfo;
             _mapper = mapper;
         }
 
@@ -45,6 +53,20 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
                 .Include(x=>x.Contacts)
                 .FirstOrDefaultAsync();
             var executorProfileDto = _mapper.Map<ExecutorProfileDto>(executorProfile);
+            executorProfileDto.Services = await _executorServiceBusiness.GetAllServicesByExecutorId(id);
+            return executorProfileDto;
+        }
+
+        public async Task<ExecutorProfileDto> GetExecutorProfileByUserId()
+        {
+            var userId = await _userInfo.GetUserIdFromToken();
+            var executorProfile = await _executorProfileRepository
+                .GetAllByPredicateAsQueryable(x => x.UserId == userId)
+                .Include(x => x.User)
+                .Include(x=>x.Contacts)
+                .FirstAsync();
+            var executorProfileDto = _mapper.Map<ExecutorProfileDto>(executorProfile);
+            executorProfileDto.Services = await _executorServiceBusiness.GetAllServicesByExecutorId(executorProfile.Id);
             return executorProfileDto;
         }
 

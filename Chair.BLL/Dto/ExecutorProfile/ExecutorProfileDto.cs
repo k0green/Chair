@@ -10,6 +10,7 @@ namespace Chair.BLL.Dto.ExecutorService
         public string UserId { get; set; }
         public string UserName { get; set; }
         public string ImageUrl { get; set; }
-        public List<ContactsDto> Contacts { get; set; }
+        public List<ContactsDto> Contacts { get; set; } = new();
+        public List<ExecutorServiceDto> Services { get; set; } = new();
     }
 }

@@ -16,6 +16,10 @@ namespace Chair.Infrastructure
 
             CreateMap<ExecutorService, ExecutorServiceDto>()
                 .ForMember(dest => dest.ServiceTypeName, opt => opt.MapFrom(src => src.ServiceType.Name))
+                .ForMember(dest => dest.ExecutorName, opt => opt.MapFrom(src => src.Executor.Name))
+                .ForMember(dest => dest.AvailableSlots, opt => opt.MapFrom(src => src.Orders.Count))
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Average(y => y.Stars)))
+                //.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration.ToString("hh:mm:ss")))
                 .ReverseMap();
             CreateMap<ExecutorService, ExecutorServiceDto>()
                 .ForMember(dest => dest.ImageURLs, opt => opt.MapFrom(src => src.Images.Select(x=>x.URL)))
