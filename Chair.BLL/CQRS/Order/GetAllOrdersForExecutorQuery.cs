@@ -3,9 +3,8 @@ using MediatR;
 
 namespace Chair.BLL.CQRS.Order
 {
-    public class GetAllOrdersByServiceIdQuery : IRequest<List<OrderDto>>
+    public class GetAllOrdersForExecutorQuery : IRequest<List<OrderDto>>
     {
-        public Guid ExecutorServiceId { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }
     }

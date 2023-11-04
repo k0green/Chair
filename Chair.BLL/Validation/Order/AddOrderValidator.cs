@@ -3,6 +3,7 @@ using Chair.BLL.CQRS.ServiceType;
 using Chair.DAL.Data;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Chair.BLL.Validation.Order
 {
@@ -22,7 +23,9 @@ namespace Chair.BLL.Validation.Order
 
             RuleFor(x => x.AddOrderDtos.Select(x => x.ClientId)).MustAsync(async (exId, token) =>
             {
-                return exId.Select(item => _context.Users.FirstOrDefault(x => x.Id == item)).All(user => user != null);
+                if(exId.Any(x=>!x.IsNullOrEmpty()))
+                    return exId.Select(item => _context.Users.FirstOrDefault(x => x.Id == item)).All(user => user == null);
+                return true;
             }).WithMessage("user with id: {PropertyValue} doesn't exists");
 
             RuleFor(x => x.AddOrderDtos).MustAsync(async (dtos, token) =>

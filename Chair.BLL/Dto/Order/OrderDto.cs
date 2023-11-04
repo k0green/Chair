@@ -11,6 +11,8 @@ namespace Chair.BLL.Dto.Order
         public string ClientId { get; set; }
         public string ClientName { get; set; }
         public DateTime StarDate { get; set; }
+        public int Day => StarDate.Day;
+        public int Month => StarDate.Month;
         public DateTime Duration { get; set; }
         public string ExecutorComment { get; set; }
         public string ClientComment { get; set; }

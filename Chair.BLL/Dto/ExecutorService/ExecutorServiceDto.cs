@@ -7,7 +7,13 @@ namespace Chair.BLL.Dto.ExecutorService
         public Guid ServiceTypeId { get; set; }
         public string ServiceTypeName { get; set; }
         public Guid ExecutorId { get; set; }
+        public string ExecutorName { get; set; }
         public string Description { get; set; }
+        public decimal Rating { get; set; }
+        public decimal Price { get; set; }
+        public int AvailableSlots { get; set; }
+        public DateTime Duration { get; set; }
+        public string Address { get; set; }
         public List<string> ImageURLs { get; set; }
     }
 }

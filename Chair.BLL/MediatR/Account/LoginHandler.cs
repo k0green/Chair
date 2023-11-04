@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Chair.BLL.MediatR.Account
 {
-    public class LoginHandler : IRequestHandler<LoginQuery, Unit>
+    public class LoginHandler : IRequestHandler<LoginQuery, string>
     {
         private readonly IAccountBusinessLogic _accountBusinessLogic;
 
@@ -13,11 +13,9 @@ namespace Chair.BLL.MediatR.Account
             _accountBusinessLogic = accountBusinessLogic;
         }
 
-        public async Task<Unit> Handle(LoginQuery request, CancellationToken cancellationToken)
+        public async Task<string> Handle(LoginQuery request, CancellationToken cancellationToken)
         {
-            await _accountBusinessLogic.Login(request.LoginDto);
-
-            return Unit.Value;
+            return await _accountBusinessLogic.Login(request.LoginDto);
         }
     }
 }

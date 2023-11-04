@@ -2,6 +2,7 @@
 using Chair.BLL.CQRS.Order;
 using Chair.BLL.Dto.Order;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
@@ -9,6 +10,7 @@ namespace Chair.Controllers
 {
     [ApiController]
     [Route("order")]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -27,9 +29,53 @@ namespace Chair.Controllers
         [HttpGet]
         [Route("{executorServiceId}")]
         [ProducesResponseType(typeof(List<OrderDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllByContractId([FromRoute] Guid executorServiceId)
+        public async Task<IActionResult> GetAllByContractId([FromRoute] Guid executorServiceId, [FromQuery] int month, [FromQuery] int year)
         {
-            var query = new GetAllOrdersByServiceIdQuery() { ExecutorServiceId = executorServiceId };
+            var query = new GetAllOrdersByServiceIdQuery() { ExecutorServiceId = executorServiceId, Month = month, Year = year};
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("executor")]
+        [ProducesResponseType(typeof(List<OrderDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllOrdersForExecutor([FromQuery] int month, [FromQuery] int year)
+        {
+            var query = new GetAllOrdersForExecutorQuery() {Month = month, Year = year};
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("client")]
+        [ProducesResponseType(typeof(List<OrderDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllOrdersForClient([FromQuery] int month, [FromQuery] int year)
+        {
+            var query = new GetAllOrdersForClientQuery() { Month = month, Year = year};
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("unconfirmed/executor")]
+        [ProducesResponseType(typeof(List<OrderDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUnconfirmedOrdersForExecutor()
+        {
+            var query = new GetUnconfirmedOrdersForExecutorQuery();
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("unconfirmed/client")]
+        [ProducesResponseType(typeof(List<OrderDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUnconfirmedOrdersForClient()
+        {
+            var query = new GetUnconfirmedOrdersForClientQuery();
             var result = await _mediator.Send(query);
 
             return Ok(result);
@@ -53,7 +99,7 @@ namespace Chair.Controllers
         {
             var command = new AddOrderQuery() { AddOrderDtos = addOrderDtos };
             var result = await _mediator.Send(command);
-            await _hubContext.Clients.All.SendAsync("ReceiveReviewNotification", "Новый отзыв добавлен");
+            //await _hubContext.Clients.All.SendAsync("ReceiveReviewNotification", "Новый отзыв добавлен");
             return Ok(result);
         }
 

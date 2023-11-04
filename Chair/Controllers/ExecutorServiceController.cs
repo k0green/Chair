@@ -3,12 +3,14 @@ using Chair.BLL.CQRS.ServiceType;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.ServiceType;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chair.Controllers
 {
     [ApiController]
     [Route("executor-service")]
+    [Authorize]
     public class ExecutorServiceController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -27,6 +29,51 @@ namespace Chair.Controllers
         public async Task<IActionResult> GetAllByContractId([FromRoute] Guid executorId)
         {
             var query = new GetAllServicesByExecutorIdQuery() { ExecutorId = executorId };
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("type/{typeId:guid}")]
+        [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllByTypeId([FromRoute] Guid typeId)
+        {
+            var query = new GetAllServicesByTypeIdQuery() { TypeId = typeId };
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("executor-services/lookup")]
+        [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllServicesNamesByUserId()
+        {
+            var query = new GetAllServicesNamesByUserIdQuery();
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("executor-services/lookup/all")]
+        [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllServicesNames()
+        {
+            var query = new GetAllServicesNamesQuery();
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("all")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllServices()
+        {
+            var query = new GetAllServicesQuery();
             var result = await _mediator.Send(query);
 
             return Ok(result);

@@ -16,7 +16,7 @@ namespace Chair.BLL.MediatR.Order
 
         public async Task<List<OrderDto>> Handle(GetAllOrdersByServiceIdQuery request, CancellationToken cancellationToken)
         {
-            var result = await _orderBusinessLogic.GetAllOrdersByServiceId(request.ExecutorServiceId);
+            var result = await _orderBusinessLogic.GetAllOrdersByServiceId(request.ExecutorServiceId, request.Month, request.Year);
 
             return result;
         }
