@@ -22,7 +22,7 @@ namespace Chair.BLL.Validation.Order
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.Id == id);
 
-                return user != null;
+                return user == null;
             }).WithMessage("User with Id: {PropertyValue} doesn't exist");
 
             RuleFor(x => x.UpdateOrderDto.ExecutorServiceId).MustAsync(async (id, token) =>
