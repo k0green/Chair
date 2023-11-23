@@ -126,9 +126,9 @@ namespace Chair.Controllers
         }
 
         [HttpPost]
-        [Route("approve")]
+        [Route("approve/{orderId:guid}")]
         [ProducesResponseType( StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> Approve([FromBody] Guid orderId, bool isExecutor)
+        public async Task<IActionResult> Approve([FromRoute] Guid orderId, bool isExecutor)
         {
             var command = new ApproveOrderQuery() { OrderId = orderId, IsExecutor = isExecutor};
             var result = await _mediator.Send(command);
@@ -141,6 +141,16 @@ namespace Chair.Controllers
         public async Task<IActionResult> Cancel([FromRoute] Guid orderId)
         {
             var command = new CancelOrderQuery() { OrderId = orderId };
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("enroll/{orderId:guid}")]
+        [ProducesResponseType( StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> Enroll([FromRoute] Guid orderId)
+        {
+            var command = new EnrollOrderQuery() { OrderId = orderId };
             var result = await _mediator.Send(command);
             return Ok(result);
         }

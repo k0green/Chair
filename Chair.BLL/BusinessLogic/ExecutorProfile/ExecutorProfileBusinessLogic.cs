@@ -74,6 +74,8 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
         {
             var entity = _mapper.Map<DAL.Data.Entities.ExecutorProfile>(dto);
             entity.Id = Guid.NewGuid();
+            entity.Description = "";
+            entity.ImageURL = "";
             var contactsEntity = _mapper.Map<List<Contact>>(dto.Contacts);
             contactsEntity.ForEach(x=>
             {

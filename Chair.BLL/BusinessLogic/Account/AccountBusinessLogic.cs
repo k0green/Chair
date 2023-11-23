@@ -3,8 +3,10 @@ using System.Security.Claims;
 using System.Text;
 using Chair.BLL.BusinessLogic.ExecutorProfile;
 using Chair.BLL.Dto.Account;
+using Chair.BLL.Dto.Contacts;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.DAL.Data.Entities;
+using Chair.DAL.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -39,6 +41,14 @@ namespace Chair.BLL.BusinessLogic.Account
                 {
                     UserId = user.Id,
                     Name = model.Name,
+                    Contacts = new List<AddContactsDto>
+                    {
+                       new AddContactsDto()
+                       {
+                           Name = model.Phone,
+                           Type = ContactsType.MobilePhone
+                       }
+                    }
                 });
                 return await GenerateJwtToken(user);
             }

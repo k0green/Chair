@@ -39,7 +39,7 @@ namespace Chair.BLL.BusinessLogic.Order
 
         public async Task<List<OrderDto>> GetAllOrdersByServiceId(Guid serviceId, int month, int year)
         {
-            return await GetOrderByPeriodUsePredicate(month, year, x => x.ExecutorServiceId == serviceId);
+            return (await GetOrderByPeriodUsePredicate(month, year, x => x.ExecutorServiceId == serviceId)).Where(x => string.IsNullOrEmpty(x.ClientId)).ToList();
         }
 
         public async Task<List<OrderDto>> GetAllOrdersForExecutor(int month, int year)
@@ -91,6 +91,7 @@ namespace Chair.BLL.BusinessLogic.Order
                 .Include(x => x.ExecutorService.ServiceType)
                 .Where(x=>x.StarDate.Year == year)
                 .Where(x=>x.StarDate.Month == month)
+                .OrderBy(x => x.StarDate)
                 .ToListAsync();
 
             var orderDtos = _mapper.Map<List<OrderDto>>(orders);
@@ -160,6 +161,19 @@ namespace Chair.BLL.BusinessLogic.Order
             await _orderRepository.UpdateAsync(order);
             await _orderRepository.SaveChangesAsync();
             await _hubContext.Clients.User(userId).SendAsync("ReceiveOrderNotification", "Заказ подтвержден");
+        }
+
+        public async Task EnrollOrderAsync(Guid orderId)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order == null)
+                throw new ArgumentNullException("Order doesnt exist");
+            var userId = await _userInfo.GetUserIdFromToken();
+            order.ClientId = userId;
+            order.ClientComment = null;
+            await _orderRepository.UpdateAsync(order);
+
+            await _orderRepository.SaveChangesAsync();
         }
 
         public async Task CancelOrderAsync(Guid orderId)

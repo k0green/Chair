@@ -1,7 +1,9 @@
 using System.Text;
 using Chair.BLL.BusinessLogic.Account;
+using Chair.BLL.BusinessLogic.Chat;
 using Chair.BLL.BusinessLogic.ExecutorProfile;
 using Chair.BLL.BusinessLogic.ExecutorService;
+using Chair.BLL.BusinessLogic.Message;
 using Chair.BLL.BusinessLogic.Order;
 using Chair.BLL.BusinessLogic.Review;
 using Chair.BLL.BusinessLogic.ServiceType;
@@ -10,10 +12,12 @@ using Chair.BLL.Extensions.FluentValidation;
 using Chair.BLL.Extensions.MediatR;
 using Chair.DAL.Data;
 using Chair.DAL.Data.Entities;
+using Chair.DAL.Repositories.Chat;
 using Chair.DAL.Repositories.Contact;
 using Chair.DAL.Repositories.ExecutorProfile;
 using Chair.DAL.Repositories.ExecutorService;
 using Chair.DAL.Repositories.Image;
+using Chair.DAL.Repositories.Message;
 using Chair.DAL.Repositories.Order;
 using Chair.DAL.Repositories.Review;
 using Chair.DAL.Repositories.ServiceType;
@@ -21,6 +25,7 @@ using Chair.Infrastructure;
 using Chair.Middllewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -52,6 +57,11 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = "your_audience",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key_32_bytes_here")),
     };
+});
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
 
 builder.Services.AddDistributedMemoryCache(); // Добавляет распределенный кэш для сессий
@@ -120,6 +130,12 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 builder.Services.AddScoped<IOrderBusinessLogic, OrderBusinessLogic>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+builder.Services.AddScoped<IChatBusinessLogic, ChatBusinessLogic>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+
+builder.Services.AddScoped<IMessageBusinessLogic, MessageBusinessLogic>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 builder.Services.AddScoped<UserInfo>();
 
