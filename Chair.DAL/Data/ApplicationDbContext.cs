@@ -13,6 +13,8 @@ namespace Chair.DAL.Data
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Chat> Chats { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -62,6 +64,21 @@ namespace Chair.DAL.Data
                 .HasOne(es => es.User)
                 .WithMany(st => st.Orders)
                 .HasForeignKey(es => es.ClientId);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(es => es.Recipient)
+                .WithMany(st => st.RecipientChats)
+                .HasForeignKey(es => es.RecipientId);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(es => es.Sender)
+                .WithMany(st => st.SenderChats)
+                .HasForeignKey(es => es.SenderId);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(es => es.Chat)
+                .WithMany(st => st.Messages)
+                .HasForeignKey(es => es.ChatId);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Chair.BLL.BusinessLogic.Order
         Task RemoveAsync(Guid id);
 
         public Task ApproveOrderAsync(Guid orderId, bool IsExecutor);
-
+        Task EnrollOrderAsync(Guid orderId);
         public Task CancelOrderAsync(Guid orderId);
     }
 }

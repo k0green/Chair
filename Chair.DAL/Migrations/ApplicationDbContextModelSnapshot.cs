@@ -22,6 +22,20 @@ namespace Chair.DAL.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Chair.DAL.Data.Entities.Chat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Chats");
+                });
+
             modelBuilder.Entity("Chair.DAL.Data.Entities.Contact", b =>
                 {
                     b.Property<Guid>("Id")
@@ -132,6 +146,55 @@ namespace Chair.DAL.Migrations
                     b.HasIndex("ObjectId");
 
                     b.ToTable("Images");
+                });
+
+            modelBuilder.Entity("Chair.DAL.Data.Entities.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("RecipientId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid?>("ReplyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.HasIndex("RecipientId");
+
+                    b.HasIndex("ReplyId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.Order", b =>
@@ -487,6 +550,39 @@ namespace Chair.DAL.Migrations
                     b.Navigation("ExecutorService");
                 });
 
+            modelBuilder.Entity("Chair.DAL.Data.Entities.Message", b =>
+                {
+                    b.HasOne("Chair.DAL.Data.Entities.Chat", "Chat")
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Chair.DAL.Data.Entities.User", "Recipient")
+                        .WithMany("RecipientChats")
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Chair.DAL.Data.Entities.Message", "Reply")
+                        .WithMany()
+                        .HasForeignKey("ReplyId");
+
+                    b.HasOne("Chair.DAL.Data.Entities.User", "Sender")
+                        .WithMany("SenderChats")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+
+                    b.Navigation("Recipient");
+
+                    b.Navigation("Reply");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Chair.DAL.Data.Entities.Order", b =>
                 {
                     b.HasOne("Chair.DAL.Data.Entities.User", "User")
@@ -566,6 +662,11 @@ namespace Chair.DAL.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Chair.DAL.Data.Entities.Chat", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("Chair.DAL.Data.Entities.ExecutorProfile", b =>
                 {
                     b.Navigation("Contacts");
@@ -590,6 +691,10 @@ namespace Chair.DAL.Migrations
                     b.Navigation("ExecutorServices");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("RecipientChats");
+
+                    b.Navigation("SenderChats");
                 });
 #pragma warning restore 612, 618
         }

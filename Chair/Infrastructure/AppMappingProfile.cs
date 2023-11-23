@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Chair.BLL.Dto.Chat;
 using Chair.BLL.Dto.Contacts;
 using Chair.BLL.Dto.ExecutorService;
+using Chair.BLL.Dto.Message;
 using Chair.BLL.Dto.Order;
 using Chair.BLL.Dto.Review;
 using Chair.BLL.Dto.ServiceType;
@@ -77,6 +79,19 @@ namespace Chair.Infrastructure
                 .ForMember(dest => dest.ExecutorName, opt => opt.MapFrom(src => src.ExecutorService.Executor.User.AccountName))
                 .ReverseMap();
             CreateMap<Order, UpdateOrderDto>().ReverseMap();
+
+            #endregion            
+            
+            #region Chat
+
+            CreateMap<Chat, ChatDto>().ReverseMap();
+
+            #endregion      
+            
+            #region Message
+
+            CreateMap<Message, MessageDto>().ReverseMap();
+            CreateMap<Message, AddMessageDto>().ReverseMap();
 
             #endregion
         }
