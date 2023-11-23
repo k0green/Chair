@@ -2,9 +2,11 @@ using Chair.BLL.CQRS.ExecutorService;
 using Chair.BLL.CQRS.ServiceType;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.ServiceType;
+using Chair.DAL.Extension.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using opr_lib;
 
 namespace Chair.Controllers
 {
@@ -67,13 +69,13 @@ namespace Chair.Controllers
             return Ok(result);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("all")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllServices()
+        public async Task<IActionResult> GetAllServices(FilterModel filter)
         {
-            var query = new GetAllServicesQuery();
+            var query = new GetAllServicesQuery() { Filter = filter};
             var result = await _mediator.Send(query);
 
             return Ok(result);
@@ -121,6 +123,25 @@ namespace Chair.Controllers
             await _mediator.Send(command);
 
             return NoContent();
+        }
+        
+        
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("optimize-service")]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+        public async Task<IActionResult> Add([FromBody] GetOptimizeServiceDto dto)
+        {
+            var command = new GetOptimizeServiceQuery()
+            {
+                FilterModel = dto.FilterModel,
+                Conditions = dto.Conditions,
+                ServiceTypeId = dto.ServiceTypeId,
+            };
+            var result = await _mediator.Send(command);
+
+            return Ok(result);
         }
     }
 }

@@ -4,10 +4,13 @@ using Chair.BLL.BusinessLogic.Account;
 using Chair.BLL.Dto.Base;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.DAL.Data.Entities;
+using Chair.DAL.Extension;
+using Chair.DAL.Extension.Models;
 using Chair.DAL.Repositories.ExecutorService;
 using Chair.DAL.Repositories.Image;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using opr_lib;
 
 namespace Chair.BLL.BusinessLogic.ExecutorService
 {
@@ -39,31 +42,31 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             return executorServiceDtos;
         }
         
-        public async Task<List<GroupExecutorServiceDto>> GetAllServices()
+        public async Task<List<GroupExecutorServiceDto>> GetAllServices(FilterModel filter)
         {
-            /*var executorServices = await _executorServiceRepository
-                .GetAllByPredicateAsQueryable()
-                .Include(x => x.Images)
-                .Include(x => x.ServiceType)
-                .Include(x => x.Executor)
-                .Include(x => x.Reviews)
-                .Include(x => x.Orders.Where(y => y.ClientId == null))
-                .ToListAsync();
-            
-            var executorServiceDtos = _mapper.Map<List<ExecutorServiceDto>>(executorServices);
+            return await GetAllServicesByPredicate(filter: filter);
+        }
+        
+        public async Task<ExecutorServiceDto> GetOptimizeService(FilterModel filter, Guid serviceTypeId, List<Condition> conditions)
+        {
+            Dictionary<int, Guid> myDictionary = new Dictionary<int, Guid>();
+            var items = (await GetAllServicesByPredicate(x => x.ServiceTypeId == serviceTypeId, filter: filter)).First();
+            var matrix = new decimal?[items.Services.Count(), 4];
+            var i = 0;
+            foreach (var item in items.Services)
+            {
+                matrix[i, 0] = item.AvailableSlots;
+                matrix[i, 1] = item.Price;
+                matrix[i, 2] = item.Rating;
+                matrix[i, 3] = item.Duration.Hour * 60 + item.Duration.Minute;
+                
+                myDictionary.Add(i, item.Id);
 
-            var groupedServices = executorServiceDtos
-                .GroupBy(x => new { x.ServiceTypeId, x.ServiceTypeName })
-                .Select(group => new GroupExecutorServiceDto
-                {
-                    Id = group.Key.ServiceTypeId,
-                    ServiceTypeName = group.Key.ServiceTypeName,
-                    Services = group.ToList()
-                })
-                .ToList();
+                i++;
+            }
 
-            return groupedServices;*/
-            return await GetAllServicesByPredicate();
+            var resultId = Optimization.GetResult(matrix, conditions, onMax: true, myDictionary);
+            return items.Services.First(x => x.Id == resultId);
         }
         
         public async Task<List<GroupExecutorServiceDto>> GetAllServicesByTypeId(Guid serviceTypeId)
@@ -94,19 +97,22 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 }).ToListAsync();
         }
         
-        public async Task<List<GroupExecutorServiceDto>> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null)
+        public async Task<List<GroupExecutorServiceDto>> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null, FilterModel? filter = null)
         {
-            var executorServices = await _executorServiceRepository
+            var executorServices = _executorServiceRepository
                 .GetAllByPredicateAsQueryable(predicate)
                 .Include(x => x.Images)
                 .Include(x => x.ServiceType)
                 .Include(x => x.Executor)
                 .Include(x => x.Reviews)
                 .Include(x => x.Orders.Where(y => y.ClientId == null))
-                .ToListAsync();
+                .ToList();
             
             var executorServiceDtos = _mapper.Map<List<ExecutorServiceDto>>(executorServices);
 
+            if(filter != null)
+                executorServiceDtos = executorServiceDtos.AsQueryable().ToFilterView(filter).ToList();
+            
             var groupedServices = executorServiceDtos
                 .GroupBy(x => new { x.ServiceTypeId, x.ServiceTypeName })
                 .Select(group => new GroupExecutorServiceDto
@@ -116,7 +122,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                     Services = group.ToList()
                 })
                 .ToList();
-
+            
             return groupedServices;
         }
 

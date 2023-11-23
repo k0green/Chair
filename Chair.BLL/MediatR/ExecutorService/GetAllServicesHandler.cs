@@ -16,7 +16,7 @@ namespace Chair.BLL.MediatR.ExecutorService
 
         public async Task<List<GroupExecutorServiceDto>> Handle(GetAllServicesQuery request, CancellationToken cancellationToken)
         {
-            var result = await _executorServiceBusinessLogic.GetAllServices();
+            var result = await _executorServiceBusinessLogic.GetAllServices(filter: request.Filter);
 
             return result;
         }
