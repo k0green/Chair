@@ -15,7 +15,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\OneDrive\Рабочий стол\OPR\opr_lib\opr_lib.csproj" />
     <ProjectReference Include="..\Chair.DAL\Chair.DAL.csproj" />
+  </ItemGroup>
+
+
+
+
+
+  <ItemGroup>
+    <Folder Include="Dto\AddMessageDto\" />
   </ItemGroup>
 
 </Project>

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chair.BLL", "Chair.BLL\Chai
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chair.DAL", "Chair.DAL\Chair.DAL.csproj", "{03678325-DDF6-4BF4-AC6E-2EF2D7EE69A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "opr_lib", "..\..\..\OneDrive\Рабочий стол\OPR\opr_lib\opr_lib.csproj", "{C375F94A-9197-4881-AF8A-1F233B4B950A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{03678325-DDF6-4BF4-AC6E-2EF2D7EE69A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03678325-DDF6-4BF4-AC6E-2EF2D7EE69A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03678325-DDF6-4BF4-AC6E-2EF2D7EE69A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C375F94A-9197-4881-AF8A-1F233B4B950A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C375F94A-9197-4881-AF8A-1F233B4B950A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C375F94A-9197-4881-AF8A-1F233B4B950A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C375F94A-9197-4881-AF8A-1F233B4B950A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
