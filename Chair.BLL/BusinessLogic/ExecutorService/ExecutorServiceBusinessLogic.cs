@@ -42,12 +42,12 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             return executorServiceDtos;
         }
         
-        public async Task<List<GroupExecutorServiceDto>> GetAllServices(FilterModel filter)
+        public async Task<List<GroupExecutorServiceDto>> GetAllServices(FilterModelWithPeriods filter)
         {
             return await GetAllServicesByPredicate(filter: filter);
         }
         
-        public async Task<ExecutorServiceDto> GetOptimizeService(FilterModel filter, Guid serviceTypeId, List<Condition> conditions)
+        public async Task<ExecutorServiceDto> GetOptimizeService(FilterModelWithPeriods filter, Guid serviceTypeId, List<Condition> conditions)
         {
             Dictionary<int, Guid> myDictionary = new Dictionary<int, Guid>();
             var items = (await GetAllServicesByPredicate(x => x.ServiceTypeId == serviceTypeId, filter: filter)).First();
@@ -97,7 +97,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 }).ToListAsync();
         }
         
-        public async Task<List<GroupExecutorServiceDto>> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null, FilterModel? filter = null)
+        public async Task<List<GroupExecutorServiceDto>> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null, FilterModelWithPeriods? filter = null)
         {
             var executorServices = _executorServiceRepository
                 .GetAllByPredicateAsQueryable(predicate)
@@ -107,12 +107,27 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 .Include(x => x.Reviews)
                 .Include(x => x.Orders.Where(y => y.ClientId == null))
                 .ToList();
-            
+
+            if (filter != null)
+            {
+                if (filter is { Times: not null, Dates: not null } && (filter.Dates.Any() || filter.Times.Any()))
+                {
+                    executorServices = executorServices
+                        .Where(x =>
+                            x.Orders.Any(o =>
+                                (filter.Dates.Any() && filter.Dates.Select(d => d.Date).Contains(o.StarDate.Date)) ||
+                                (filter.Times.Any() && filter.Times.Any(t => o.StarDate.TimeOfDay >= t.StartTime.TimeOfDay && o.StarDate <= t.EndTime))
+                            )
+                        )
+                        .ToList();
+                }
+            }
+
             var executorServiceDtos = _mapper.Map<List<ExecutorServiceDto>>(executorServices);
 
-            if(filter != null)
-                executorServiceDtos = executorServiceDtos.AsQueryable().ToFilterView(filter).ToList();
-            
+            if (filter?.Filter != null)
+                executorServiceDtos = executorServiceDtos.AsQueryable().ToFilterView(filter.Filter).ToList();
+
             var groupedServices = executorServiceDtos
                 .GroupBy(x => new { x.ServiceTypeId, x.ServiceTypeName })
                 .Select(group => new GroupExecutorServiceDto

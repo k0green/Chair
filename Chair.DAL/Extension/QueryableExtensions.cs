@@ -44,13 +44,23 @@ namespace Chair.DAL.Extension
         {
             if (filter?.Logic == null) return queryable;
             var filters = GetAllFilters(filter);
-            var values = filters.Select(f => f.Value).ToArray();
+            var values = filters.Select(f => f.Value.ToString()).ToArray();
             var where = Transform(filter, filters);
-            queryable = queryable.Where(where, values);
+            queryable = queryable.Where(ReplaceValues(values, where));
 
             return queryable;
         }
 
+        private static string ReplaceValues(object[] values, string where)
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                where = where.Replace($"@{i}", values[i].ToString());
+            }
+
+            return where;
+        }
+        
         private static IQueryable<T> Sort<T>(IQueryable<T> queryable, IEnumerable<Sort> sort)
         {
             if (sort == null || !sort.Any())

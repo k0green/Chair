@@ -2,6 +2,7 @@ using Chair.BLL.CQRS.ExecutorService;
 using Chair.BLL.CQRS.ServiceType;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.ServiceType;
+using Chair.DAL.Data.Entities;
 using Chair.DAL.Extension.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -73,7 +74,7 @@ namespace Chair.Controllers
         [Route("all")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllServices(FilterModel filter)
+        public async Task<IActionResult> GetAllServices(FilterModelWithPeriods filter)
         {
             var query = new GetAllServicesQuery() { Filter = filter};
             var result = await _mediator.Send(query);

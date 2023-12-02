@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Chair.BLL.Dto.Base;
+using Chair.DAL.Data.Entities;
 using Chair.DAL.Extension.Models;
 using opr_lib;
 
@@ -14,7 +15,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
     {
         Task<List<ExecutorServiceDto>> GetAllServicesByExecutorId(Guid executorId);
         Task<List<GroupExecutorServiceDto>> GetAllServicesByTypeId(Guid executorId);
-        Task<List<GroupExecutorServiceDto>> GetAllServices(FilterModel filter);
+        Task<List<GroupExecutorServiceDto>> GetAllServices(FilterModelWithPeriods filter);
         Task<ExecutorServiceDto> GetExecutorServiceById(Guid id);
 
         Task<Guid> AddAsync(AddExecutorServiceDto dto);
@@ -24,6 +25,6 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
         Task RemoveAsync(Guid id);
         Task<List<LookupDto>> GetAllServicesNamesByUserId();
         Task<List<LookupDto>> GetAllServicesNames();
-        Task<ExecutorServiceDto> GetOptimizeService(FilterModel filter, Guid serviceTypeId, List<Condition> conditions);
+        Task<ExecutorServiceDto> GetOptimizeService(FilterModelWithPeriods filter, Guid serviceTypeId, List<Condition> conditions);
     }
 }
