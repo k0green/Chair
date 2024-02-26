@@ -63,6 +63,7 @@ namespace Chair.BLL.BusinessLogic.Account
             if (!result.Succeeded)
                 throw new InvalidOperationException("Login failed");
             var user = await _userManager.FindByEmailAsync(model.Email);
+            
             var token = await GenerateJwtToken(user);
             return token;
         }

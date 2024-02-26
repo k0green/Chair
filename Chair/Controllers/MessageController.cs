@@ -1,3 +1,4 @@
+using Chair.BLL.Commons;
 using Chair.BLL.CQRS.ExecutorService;
 using Chair.BLL.CQRS.Message;
 using Chair.BLL.CQRS.ServiceType;
@@ -8,6 +9,7 @@ using Chair.BLL.Dto.ServiceType;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Chair.Controllers
 {
@@ -18,22 +20,28 @@ namespace Chair.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<MessageController> _logger;
+        private readonly IHubContext<MessageHub> _hubContext;
 
         public MessageController(IMediator mediator,
-            ILogger<MessageController> logger)
+            ILogger<MessageController> logger,
+            IHubContext<MessageHub> hubContext)
         {
             _logger = logger;
             _mediator = mediator;
+            _hubContext = hubContext;
         }
 
         [HttpPost]
         [Route("add")]
         [ProducesResponseType(typeof(List<Guid>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllByContractId([FromBody] AddMessageDto dto)
+        public async Task<IActionResult> Add([FromBody] AddMessageDto dto)
         {
             var query = new AddMessageQuery() { AddMessageDto = dto };
             var result = await _mediator.Send(query);
-
+            
+            //await _hubContext.Clients.User(dto.RecipientId).SendAsync("ReceiveMessage", dto.Text);
+            await _hubContext.Clients.Users(dto.RecipientId, dto.SenderId).SendAsync("ReceiveMessage", result);
+            
             return Ok(result);
         }
 

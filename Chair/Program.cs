@@ -55,8 +55,28 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = "your_issuer",
         ValidAudience = "your_audience",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key_32_bytes_here")),
+        IssuerSigningKey = new SymmetricSecurityKey("your_secret_key_32_bytes_here"u8.ToArray()),
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/messageHub"))
+            {
+                context.Token = accessToken;
+            }
+
+            // Добавьте следующие строки для отладки:
+            Console.WriteLine($"Access Token: {accessToken}");
+            Console.WriteLine($"Request Path: {path}");
+            Console.WriteLine($"Context Token: {context.Token}");
+
+            return Task.CompletedTask;
+        }
+    };
+
 });
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -176,6 +196,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.MapControllers();
 
 app.MapHub<NotificationHub>("/notificationHub");
+app.MapHub<MessageHub>("/messageHub");
 
 app.UseCors("CorsPolicy");
 

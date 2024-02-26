@@ -2,11 +2,12 @@
 using Chair.BLL.BusinessLogic.Message;
 using Chair.BLL.CQRS.Message;
 using Chair.BLL.CQRS.ServiceType;
+using Chair.BLL.Dto.Message;
 using MediatR;
 
 namespace Chair.BLL.MediatR.Message
 {
-    public class AddMessageHandler : IRequestHandler<AddMessageQuery, Guid>
+    public class AddMessageHandler : IRequestHandler<AddMessageQuery, MessageDto>
     {
         private readonly IMessageBusinessLogic _messageBusinessLogic;
 
@@ -15,7 +16,7 @@ namespace Chair.BLL.MediatR.Message
             _messageBusinessLogic = messageBusinessLogic;
         }
 
-        public async Task<Guid> Handle(AddMessageQuery request, CancellationToken cancellationToken)
+        public async Task<MessageDto> Handle(AddMessageQuery request, CancellationToken cancellationToken)
         {
             var result = await _messageBusinessLogic.AddAsync(request.AddMessageDto);
 

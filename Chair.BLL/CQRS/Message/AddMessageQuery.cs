@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Chair.BLL.CQRS.Message
 {
-    public class AddMessageQuery : IRequest<Guid>
+    public class AddMessageQuery : IRequest<MessageDto>
     {
         public AddMessageDto AddMessageDto { get; set; }
     }

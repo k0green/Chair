@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq.Dynamic.Core;
+using AutoMapper;
 using Chair.BLL.BusinessLogic.Account;
 using Chair.DAL.Repositories.Contact;
 using Microsoft.EntityFrameworkCore;
@@ -110,6 +111,7 @@ namespace Chair.BLL.BusinessLogic.Chat
 
             var messages = await _messageRepository
                 .GetAllByPredicateAsQueryable(x => x.ChatId == message.ChatId)
+                .Where(x => !x.IsDeleted)
                 .OrderBy(x => x.CreatedDate)
                 .ToListAsync();
             
