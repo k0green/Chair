@@ -197,6 +197,28 @@ namespace Chair.DAL.Migrations
                     b.ToTable("Messages");
                 });
 
+            modelBuilder.Entity("Chair.DAL.Data.Entities.MinioFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MinioFiles");
+                });
+
             modelBuilder.Entity("Chair.DAL.Data.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")

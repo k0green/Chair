@@ -12,6 +12,7 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.6.0" />
     <PackageReference Include="MediatR" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+    <PackageReference Include="Minio" Version="6.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,8 +24,5 @@
 
 
 
-  <ItemGroup>
-    <Folder Include="Dto\AddMessageDto\" />
-  </ItemGroup>
 
 </Project>
