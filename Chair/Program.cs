@@ -157,6 +157,9 @@ builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IMessageBusinessLogic, MessageBusinessLogic>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
+builder.Services.AddScoped<IMinioBusinessLogic, MinioBusinessLogic>();
+builder.Services.AddScoped<IMinioFileRepository, MinioFileRepository>();
+
 builder.Services.AddScoped<UserInfo>();
 
 builder.Services.AddSignalR();
@@ -175,6 +178,19 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+builder.Services.AddSingleton<MinioClient>(provider =>
+{
+    IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
+    var minioConfig = configuration.GetSection("MinioConfig");
+
+    var minio = new MinioClient()
+        .WithEndpoint(minioConfig["Endpoint"])
+        .WithCredentials(minioConfig["AccessKey"], minioConfig["SecretKey"])
+        .WithSSL(bool.Parse(minioConfig["UseSSL"]))
+        .Build();
+
+    return (MinioClient)minio;
+});
 
 var app = builder.Build();
 
