@@ -22,16 +22,16 @@ namespace Chair.BLL.BusinessLogic.Minio
             _minio = minioClient;
         }
 
-        public async Task<Guid> UploadFile(AddMinioFileDto dto)
+        public async Task<MinioFileDto> UploadFile(AddMinioFileDto dto)
         {
             await CheckBucket();
             return await Upload(dto);
         }
 
-        public async Task<List<Guid>> UploadRangeFile(List<AddMinioFileDto> dtos)
+        public async Task<List<MinioFileDto>> UploadRangeFile(List<AddMinioFileDto> dtos)
         {
             await CheckBucket();
-            var ids = new List<Guid>();
+            var ids = new List<MinioFileDto>();
             foreach (var dto in dtos)
             {
                 ids.Add(await Upload(dto));
@@ -146,7 +146,7 @@ namespace Chair.BLL.BusinessLogic.Minio
             }            
         }
 
-        private async Task<Guid> Upload(AddMinioFileDto dto)
+        private async Task<MinioFileDto> Upload(AddMinioFileDto dto)
         {
             try
             {
@@ -192,7 +192,13 @@ namespace Chair.BLL.BusinessLogic.Minio
                 await _minioFileRepository.AddAsync(entity);
                 await _minioFileRepository.SaveChangesAsync();
 
-                return entity.Id;
+                return new MinioFileDto()
+                {
+                    CreateDate = entity.CreateDate,
+                    Id = entity.Id,
+                    Name = entity.Name,
+                    Url = entity.Url,
+                };
             }
             catch (MinioException e)
             {

@@ -71,7 +71,7 @@ namespace Chair.BLL.BusinessLogic.Chat
                     Id = x.Id,
                     RecipientName = profiles.First(p => p.UserId == chatIds.First(c => c.ChatId == x.Id).RecipientId).Name,
                     RecipientProfileId = profiles.First(p => p.UserId == chatIds.First(c => c.ChatId == x.Id).RecipientId).Id,
-                    RecipientProfileImg = profiles.First(p => p.UserId == chatIds.First(c => c.ChatId == x.Id).RecipientId).ImageURL,
+                    RecipientProfileImg = profiles.First(p => p.UserId == chatIds.First(c => c.ChatId == x.Id).RecipientId)?.Image?.Url,
                     UnreadMessagesAmount = x.Messages.Where(c => c.ChatId == x.Id && !c.IsRead).ToList().Count,
                     Messages = _mapper.Map<List<MessageDto>>(x.Messages
                         .Where(c => c.ChatId == x.Id)
@@ -104,7 +104,7 @@ namespace Chair.BLL.BusinessLogic.Chat
                     RecipientId = profile.UserId,
                     RecipientName = profile.Name,
                     RecipientProfileId = profile.Id,
-                    RecipientProfileImg = profile.ImageURL,
+                    RecipientProfileImg = profile.Image.Url,
                     Messages = new List<MessageDto>(),
                 };
             }
@@ -124,7 +124,7 @@ namespace Chair.BLL.BusinessLogic.Chat
                     RecipientId = profile.UserId,
                     RecipientName = profile.Name,
                     RecipientProfileId = profile.Id,
-                    RecipientProfileImg = profile.ImageURL,
+                    RecipientProfileImg = profile.Image != null ? profile.Image.Url : "",
                     Messages = _mapper.Map<List<MessageDto>>(messages),
                 }).FirstAsync();
             

@@ -3,42 +3,65 @@ using AutoMapper;
 using Chair.BLL.BusinessLogic.Account;
 using Chair.BLL.Dto.Base;
 using Chair.BLL.Dto.ExecutorService;
+using Chair.BLL.Dto.Minio;
+using Chair.BLL.Dto.Order;
 using Chair.DAL.Data.Entities;
 using Chair.DAL.Extension;
-using Chair.DAL.Extension.Models;
+using Chair.DAL.Repositories.Base;
 using Chair.DAL.Repositories.ExecutorService;
 using Chair.DAL.Repositories.Image;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using opr_lib;
+using ExecutorServiceDao = Chair.DAL.Data.Entities.ExecutorService;
 
 namespace Chair.BLL.BusinessLogic.ExecutorService
 {
     public class ExecutorServiceBusinessLogic : IExecutorServiceBusinessLogic
     {
         private readonly IExecutorServiceRepository _executorServiceRepository;
-        private readonly IImageRepository _imageRepository;
+        private readonly IBaseWithManyRepository<ProductFile<ExecutorServiceDao>> _fileRepository;
         private readonly UserInfo _userInfo;
         private readonly IMapper _mapper;
 
         public ExecutorServiceBusinessLogic(IExecutorServiceRepository executorServiceRepository,
-            IImageRepository imageRepository,
+            IBaseWithManyRepository<ProductFile<ExecutorServiceDao>> fileRepository,
             UserInfo userInfo,
             IMapper mapper)
         {
             _executorServiceRepository = executorServiceRepository;
-            _imageRepository = imageRepository;
+            _fileRepository = fileRepository;
             _userInfo = userInfo;
             _mapper = mapper;
         }
 
         public async Task<List<ExecutorServiceDto>> GetAllServicesByExecutorId(Guid executorId)
         {
-            var executorServices = await _executorServiceRepository
+            var executorServiceDtos = _executorServiceRepository
                 .GetAllByPredicateAsQueryable(x => x.ExecutorId == executorId)
-                .Include(x=>x.Images)
-                .ToListAsync();
-            var executorServiceDtos = _mapper.Map<List<ExecutorServiceDto>>(executorServices);
+                .Select(x => new ExecutorServiceDto
+                {
+                    Id = x.Id,
+                    Address = x.Address,
+                    Orders = x.Orders.Any() ? x.Orders.Select(o => new OrderDto()
+                    {
+                        Id = o.Id,
+                        StarDate = o.StarDate,
+                        ClientId = o.ClientId,
+                    }).ToList() : new List<OrderDto>(),
+                    Description = x.Description,
+                    Duration = x.Duration,
+                    ExecutorId = x.ExecutorId,
+                    ExecutorName = x.Executor.Name,
+                    Price = x.Price,
+                    Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 5,
+                    Photos = x.Images.Select(i => new ShortMinioFileDto()
+                    {
+                        Id = i.Id,
+                        Url = i.MinioFile.Url
+                    }).ToList(),
+                    ServiceTypeId = x.ServiceTypeId,
+                    ServiceTypeName = x.ServiceType.Name,
+                }).ToList();
             return executorServiceDtos;
         }
         
@@ -99,20 +122,38 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
         
         public async Task<List<GroupExecutorServiceDto>> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null, FilterModelWithPeriods? filter = null)
         {
-            var executorServices = _executorServiceRepository
+            var executorServiceDtos = _executorServiceRepository
                 .GetAllByPredicateAsQueryable(predicate)
-                .Include(x => x.Images)
-                .Include(x => x.ServiceType)
-                .Include(x => x.Executor)
-                .Include(x => x.Reviews)
-                .Include(x => x.Orders.Where(y => y.ClientId == null))
-                .ToList();
+                .Select(x => new ExecutorServiceDto
+                {
+                    Id = x.Id,
+                    Address = x.Address,
+                    Orders = x.Orders.Any() ? x.Orders.Select(o => new OrderDto()
+                    {
+                        Id = o.Id,
+                        StarDate = o.StarDate,
+                        ClientId = o.ClientId,
+                    }).ToList() : new List<OrderDto>(),
+                    Description = x.Description,
+                    Duration = x.Duration,
+                    ExecutorId = x.ExecutorId,
+                    ExecutorName = x.Executor.Name,
+                    Price = x.Price,
+                    Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 5,
+                    Photos = x.Images.Select(i => new ShortMinioFileDto()
+                    {
+                        Id = i.Id,
+                        Url = i.MinioFile.Url
+                    }).ToList(),
+                    ServiceTypeId = x.ServiceTypeId,
+                    ServiceTypeName = x.ServiceType.Name,
+                }).ToList();
 
             if (filter != null)
             {
                 if (filter is { Times: not null, Dates: not null } && (filter.Dates.Any() || filter.Times.Any()))
                 {
-                    executorServices = executorServices
+                    executorServiceDtos = executorServiceDtos
                         .Where(x =>
                             x.Orders.Any(o =>
                                 (filter.Dates.Any() && filter.Dates.Select(d => d.Date).Contains(o.StarDate.Date)) ||
@@ -122,8 +163,6 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                         .ToList();
                 }
             }
-
-            var executorServiceDtos = _mapper.Map<List<ExecutorServiceDto>>(executorServices);
 
             if (filter?.Filter != null)
                 executorServiceDtos = executorServiceDtos.AsQueryable().ToFilterView(filter.Filter).ToList();
@@ -143,11 +182,32 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 
         public async Task<ExecutorServiceDto> GetExecutorServiceById(Guid id)
         {
-            var executorService = await _executorServiceRepository
+            var executorServiceDto = await _executorServiceRepository
                 .GetAllByPredicateAsQueryable(x=>x.Id == id)
-                .Include(x=>x.Images)
-                .FirstOrDefaultAsync();
-            var executorServiceDto = _mapper.Map<ExecutorServiceDto>(executorService);
+                .Select(x => new ExecutorServiceDto
+                {
+                    Id = x.Id,
+                    Address = x.Address,
+                    Orders = x.Orders.Any() ? x.Orders.Select(o => new OrderDto()
+                    {
+                        Id = o.Id,
+                        StarDate = o.StarDate,
+                        ClientId = o.ClientId
+                    }).ToList() : new List<OrderDto>(),
+                    Description = x.Description,
+                    Duration = x.Duration,
+                    ExecutorId = x.ExecutorId,
+                    ExecutorName = x.Executor.Name,
+                    Price = x.Price,
+                    Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 5,
+                    Photos = x.Images.Select(i => new ShortMinioFileDto()
+                    {
+                        Id = i.Id,
+                        Url = i.MinioFile.Url
+                    }).ToList(),
+                    ServiceTypeId = x.ServiceTypeId,
+                    ServiceTypeName = x.ServiceType.Name,
+                }).FirstOrDefaultAsync();
             return executorServiceDto;
         }
 
@@ -156,38 +216,36 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             var entity = _mapper.Map<DAL.Data.Entities.ExecutorService>(dto);
             entity.Id = Guid.NewGuid();
             await _executorServiceRepository.AddAsync(entity);
-            foreach (var url in dto.ImageURLs)
-            {
-                await _imageRepository.AddAsync(new Image()
-                {
-                    Id = Guid.NewGuid(),
-                    URL = url,
-                    ObjectId = entity.Id,
-                });
-            }
-            await _executorServiceRepository.SaveChangesAsync();
-            await _imageRepository.SaveChangesAsync();
+            await AddPhotos(dto.PhotoIds, entity.Id);
             return entity.Id;
         }
 
         public async Task UpdateAsync(UpdateExecutorServiceDto dto)
         {
-            var entity = _mapper.Map<DAL.Data.Entities.ExecutorService>(dto);
+            var entity = await _executorServiceRepository.GetByIdAsync(dto.Id);
+            _mapper.Map(dto, entity);
             await _executorServiceRepository.UpdateAsync(entity);
-            var imageIds = await _imageRepository.GetAllByPredicateAsQueryable(x => x.ObjectId == entity.Id).Select(x=>x.Id).ToListAsync();
-            await _imageRepository.RemoveManyByIdsAsync(imageIds);
-            foreach (var url in dto.ImageURLs)
+            var photoIds = await _fileRepository
+                .GetAllByPredicateAsQueryable(x => x.ProductId == entity.Id)
+                .Select(x=>x.Id)
+                .ToListAsync();
+            await _fileRepository.RemoveManyByIdsAsync(photoIds);
+            await AddPhotos(dto.PhotoIds, entity.Id);
+        }
+
+        private async Task AddPhotos(IEnumerable<Guid> photoIds, Guid entityId)
+        {
+            foreach (var id in photoIds)
             {
-                await _imageRepository.AddAsync(new Image()
+                await _fileRepository.AddAsync(new ProductFile<ExecutorServiceDao>()
                 {
                     Id = Guid.NewGuid(),
-                    URL = url,
-                    ObjectId = entity.Id,
+                    ProductId = entityId,
+                    MinioFileId = id
                 });
             }
-            await _executorServiceRepository.SaveChangesAsync();
-            await _imageRepository.SaveChangesAsync();
         }
+
 
         public async Task RemoveAsync(Guid id)
         {

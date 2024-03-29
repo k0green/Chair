@@ -8,6 +8,6 @@
         public string Address { get; set; }
         public DateTime Duration { get; set; }
         public decimal Price { get; set; }
-        public List<string> ImageURLs { get; set; }
+        public List<Guid> PhotoIds { get; set; }
     }
 }

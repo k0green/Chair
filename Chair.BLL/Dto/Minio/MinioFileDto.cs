@@ -7,3 +7,9 @@ public class MinioFileDto
     public string Url { get; set; }
     public DateTime CreateDate { get; set; }
 }
+
+public class ShortMinioFileDto
+{
+    public Guid Id { get; set; }
+    public string Url { get; set; }
+}

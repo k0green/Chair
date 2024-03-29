@@ -64,6 +64,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
                 .GetAllByPredicateAsQueryable(x => x.UserId == userId)
                 .Include(x => x.User)
                 .Include(x=>x.Contacts)
+                .Include(x=>x.Image)
                 .FirstAsync();
             var executorProfileDto = _mapper.Map<ExecutorProfileDto>(executorProfile);
             executorProfileDto.Services = await _executorServiceBusiness.GetAllServicesByExecutorId(executorProfile.Id);
@@ -75,7 +76,6 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
             var entity = _mapper.Map<DAL.Data.Entities.ExecutorProfile>(dto);
             entity.Id = Guid.NewGuid();
             entity.Description = "";
-            entity.ImageURL = "";
             var contactsEntity = _mapper.Map<List<Contact>>(dto.Contacts);
             contactsEntity.ForEach(x=>
             {

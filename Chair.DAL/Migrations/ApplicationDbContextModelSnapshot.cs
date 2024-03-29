@@ -69,9 +69,8 @@ namespace Chair.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageURL")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("ImageId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -82,6 +81,8 @@ namespace Chair.DAL.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
 
                     b.HasIndex("UserId");
 
@@ -134,6 +135,9 @@ namespace Chair.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ExecutorServiceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ObjectId")
                         .HasColumnType("uniqueidentifier");
 
@@ -143,7 +147,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ObjectId");
+                    b.HasIndex("ExecutorServiceId");
 
                     b.ToTable("Images");
                 });
@@ -206,6 +210,9 @@ namespace Chair.DAL.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("ExecutorServiceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -215,6 +222,8 @@ namespace Chair.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExecutorServiceId");
 
                     b.ToTable("MinioFiles");
                 });
@@ -259,6 +268,24 @@ namespace Chair.DAL.Migrations
                     b.HasIndex("ExecutorServiceId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Chair.DAL.Data.Entities.ProductFile<Chair.DAL.Data.Entities.ExecutorService>", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MinioFileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ProductId", "MinioFileId");
+
+                    b.HasIndex("MinioFileId");
+
+                    b.ToTable("ExecutorServiceFiles");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.Review", b =>
@@ -531,11 +558,17 @@ namespace Chair.DAL.Migrations
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.ExecutorProfile", b =>
                 {
+                    b.HasOne("Chair.DAL.Data.Entities.MinioFile", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
                     b.HasOne("Chair.DAL.Data.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Image");
 
                     b.Navigation("User");
                 });
@@ -566,8 +599,10 @@ namespace Chair.DAL.Migrations
             modelBuilder.Entity("Chair.DAL.Data.Entities.Image", b =>
                 {
                     b.HasOne("Chair.DAL.Data.Entities.ExecutorService", "ExecutorService")
-                        .WithMany("Images")
-                        .HasForeignKey("ObjectId");
+                        .WithMany()
+                        .HasForeignKey("ExecutorServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ExecutorService");
                 });
@@ -605,6 +640,13 @@ namespace Chair.DAL.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("Chair.DAL.Data.Entities.MinioFile", b =>
+                {
+                    b.HasOne("Chair.DAL.Data.Entities.ExecutorService", null)
+                        .WithMany("Images")
+                        .HasForeignKey("ExecutorServiceId");
+                });
+
             modelBuilder.Entity("Chair.DAL.Data.Entities.Order", b =>
                 {
                     b.HasOne("Chair.DAL.Data.Entities.User", "User")
@@ -620,6 +662,25 @@ namespace Chair.DAL.Migrations
                     b.Navigation("ExecutorService");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Chair.DAL.Data.Entities.ProductFile<Chair.DAL.Data.Entities.ExecutorService>", b =>
+                {
+                    b.HasOne("Chair.DAL.Data.Entities.MinioFile", "MinioFile")
+                        .WithMany()
+                        .HasForeignKey("MinioFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Chair.DAL.Data.Entities.ExecutorService", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MinioFile");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.Review", b =>

@@ -4,31 +4,39 @@ using Chair.BLL.BusinessLogic.Chat;
 using Chair.BLL.BusinessLogic.ExecutorProfile;
 using Chair.BLL.BusinessLogic.ExecutorService;
 using Chair.BLL.BusinessLogic.Message;
+using Chair.BLL.BusinessLogic.Minio;
 using Chair.BLL.BusinessLogic.Order;
+using Chair.BLL.BusinessLogic.ProductFile;
 using Chair.BLL.BusinessLogic.Review;
 using Chair.BLL.BusinessLogic.ServiceType;
 using Chair.BLL.Commons;
 using Chair.BLL.Extensions.FluentValidation;
 using Chair.BLL.Extensions.MediatR;
+using Chair.BLL.MediatR.ProductFile;
 using Chair.DAL.Data;
 using Chair.DAL.Data.Entities;
+using Chair.DAL.Repositories.Base;
 using Chair.DAL.Repositories.Chat;
 using Chair.DAL.Repositories.Contact;
 using Chair.DAL.Repositories.ExecutorProfile;
 using Chair.DAL.Repositories.ExecutorService;
 using Chair.DAL.Repositories.Image;
 using Chair.DAL.Repositories.Message;
+using Chair.DAL.Repositories.Minio;
 using Chair.DAL.Repositories.Order;
 using Chair.DAL.Repositories.Review;
 using Chair.DAL.Repositories.ServiceType;
 using Chair.Infrastructure;
 using Chair.Middllewares;
+using Hangfire;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Minio;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -129,6 +137,8 @@ builder.Services.RegisterMediatr()
     .RegisterMediatrTransactionPipeline();
 builder.Services.RegisterFluentValidationValidators();
 // Add services to the container.
+
+builder.Services.AddScoped(typeof(IBaseWithManyRepository<ProductFile<ExecutorService>>), typeof(BaseWithManyRepository<ProductFile<ExecutorService>>));
 
 builder.Services.AddScoped<IExecutorServiceBusinessLogic, ExecutorServiceBusinessLogic>();
 builder.Services.AddScoped<IExecutorServiceRepository, ExecutorServiceRepository>();

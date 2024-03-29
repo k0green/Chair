@@ -10,12 +10,12 @@ using System.Linq.Expressions;
 
 namespace Chair.DAL.Repositories.Base;
 
-public abstract class BaseWithManyRepository<T> : IBaseWithManyRepository<T> where T : BaseEntity
+public class BaseWithManyRepository<T> : IBaseWithManyRepository<T> where T : BaseEntity
 {
     protected readonly ApplicationDbContext _dbContext;
     protected DbSet<T> _dbSet;
 
-    protected BaseWithManyRepository(ApplicationDbContext dbContext)
+    public BaseWithManyRepository(ApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
         _dbSet = _dbContext.Set<T>();

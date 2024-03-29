@@ -5,8 +5,8 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public string UserId { get; set; }
-        public string ImageURL { get; set; }
-
+        public Guid? ImageId { get; set; }
+        public MinioFile Image { get; set; }
         public User User { get; set; }
         public ICollection<Contact> Contacts { get; set; }
 

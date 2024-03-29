@@ -1,10 +1,11 @@
 ﻿using MediatR;
 using Chair.BLL.BusinessLogic.Minio;
 using Chair.BLL.CQRS.Minio;
+using Chair.BLL.Dto.Minio;
 
 namespace Chair.BLL.MediatR.Minio;
 
-public class UploadRangeMinioFileCommandHandler : IRequestHandler<UploadRangeMinioFileCommand, List<Guid>>
+public class UploadRangeMinioFileCommandHandler : IRequestHandler<UploadRangeMinioFileCommand, List<MinioFileDto>>
 {
     private readonly IMinioBusinessLogic _minioBusinessLogic;
 
@@ -13,7 +14,7 @@ public class UploadRangeMinioFileCommandHandler : IRequestHandler<UploadRangeMin
         _minioBusinessLogic = minioBusinessLogic;
     }
 
-    public async Task<List<Guid>> Handle(UploadRangeMinioFileCommand request, CancellationToken cancellationToken)
+    public async Task<List<MinioFileDto>> Handle(UploadRangeMinioFileCommand request, CancellationToken cancellationToken)
     {
         var ids = await _minioBusinessLogic.UploadRangeFile(request.AddMinioFileDto);
 

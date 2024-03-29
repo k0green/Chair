@@ -6,6 +6,7 @@ namespace Chair.DAL.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User>
     {
+        public DbSet<ProductFile<ExecutorService>> ExecutorServiceFiles { get; set; }
         public DbSet<MinioFile> MinioFiles { get; set; }
         public DbSet<ServiceType> ServiceTypes { get; set; }
         public DbSet<ExecutorService> ExecutorServices { get; set; }
@@ -40,11 +41,6 @@ namespace Chair.DAL.Data
                 .HasOne(es => es.User)
                 .WithMany()
                 .HasForeignKey(es => es.UserId);
-
-            modelBuilder.Entity<Image>()
-                .HasOne(i => i.ExecutorService)
-                .WithMany(es => es.Images)
-                .HasForeignKey(es => es.ObjectId);
 
             modelBuilder.Entity<Contact>()
                 .HasOne(es => es.Executor)
