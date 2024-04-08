@@ -35,36 +35,30 @@ public class BaseWithManyRepository<T> : IBaseWithManyRepository<T> where T : Ba
     public virtual async Task AddAsync(T model)
     {
         await _dbSet.AddAsync(model);
-        await _dbContext.SaveChangesAsync();
     }
     public virtual async Task AddManyAsync(List<T> models)
     {
         await _dbSet.AddRangeAsync(models);
-        await _dbContext.SaveChangesAsync();
     }
 
     public virtual async Task UpdateAsync(T model)
     {
         _dbSet.Update(model);
-        await _dbContext.SaveChangesAsync();
     }
 
     public virtual async Task UpdateManyAsync(List<T> models)
     {
         _dbSet.UpdateRange(models);
-        await _dbContext.SaveChangesAsync();
     }
 
     public virtual async Task RemoveAsync(T model)
     {
         _dbSet.Remove(model);
-        await _dbContext.SaveChangesAsync();
     }
     
     public virtual async Task RemoveManyAsync(List<T> models)
     {
         _dbSet.RemoveRange(models);
-        await _dbContext.SaveChangesAsync();
     }
 
     public virtual async Task RemoveByIdAsync(Guid id)
@@ -73,7 +67,6 @@ public class BaseWithManyRepository<T> : IBaseWithManyRepository<T> where T : Ba
         if(entity == null)
             throw new ArgumentNullException($"object with this id = {id} not found");
         await RemoveAsync(entity);
-        await _dbContext.SaveChangesAsync();
     }
     
     public virtual async Task RemoveManyByIdsAsync(List<Guid> ids)
@@ -82,7 +75,6 @@ public class BaseWithManyRepository<T> : IBaseWithManyRepository<T> where T : Ba
         if(entities == null || entities.Count() < 0)
             throw new ArgumentNullException($"object with this id = {string.Join(",", ids)} not found");
         await RemoveManyAsync(await entities.ToListAsync());
-        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<int> SaveChangesAsync()

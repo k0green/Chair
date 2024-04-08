@@ -61,7 +61,7 @@ namespace Chair.Controllers
 
         [HttpGet]
         [Route("unconfirmed/executor")]
-        [ProducesResponseType(typeof(List<OrderDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UnconfirmedOrdersDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUnconfirmedOrdersForExecutor()
         {
             var query = new GetUnconfirmedOrdersForExecutorQuery();
@@ -72,7 +72,7 @@ namespace Chair.Controllers
 
         [HttpGet]
         [Route("unconfirmed/client")]
-        [ProducesResponseType(typeof(List<OrderDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UnconfirmedOrdersDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUnconfirmedOrdersForClient()
         {
             var query = new GetUnconfirmedOrdersForClientQuery();

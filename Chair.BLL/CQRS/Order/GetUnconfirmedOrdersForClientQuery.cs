@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Chair.BLL.CQRS.Order
 {
-    public class GetUnconfirmedOrdersForClientQuery : IRequest<List<OrderDto>>
+    public class GetUnconfirmedOrdersForClientQuery : IRequest<UnconfirmedOrdersDto>
     {
     }
 }

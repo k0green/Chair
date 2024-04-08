@@ -1,41 +1,30 @@
-﻿using System.Linq.Dynamic.Core;
-using AutoMapper;
+﻿using AutoMapper;
 using Chair.BLL.BusinessLogic.Account;
-using Chair.DAL.Repositories.Contact;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.SignalR;
-using Chair.BLL.Commons;
 using Chair.BLL.Dto.Chat;
 using Chair.BLL.Dto.Message;
-using Chair.DAL.Repositories.Chat;
-using Chair.DAL.Repositories.ExecutorProfile;
-using Chair.DAL.Repositories.Message;
+using Chair.DAL.Repositories.Base;
+using ChatEntity = Chair.DAL.Data.Entities.Chat;
 
 namespace Chair.BLL.BusinessLogic.Chat
 {
     public class ChatBusinessLogic : IChatBusinessLogic
     {
-        private readonly IChatRepository _chatRepository;
-        private readonly IExecutorProfileRepository _executorProfileRepository;
-        private readonly IMessageRepository _messageRepository;
-        private readonly IContactRepository _contactRepository;
+        private readonly IBaseWithManyRepository<ChatEntity> _chatRepository;
+        private readonly IBaseRepository<DAL.Data.Entities.ExecutorProfile> _executorProfileRepository;
+        private readonly IBaseWithManyRepository<DAL.Data.Entities.Message> _messageRepository;
         private readonly IMapper _mapper;
-        private readonly IHubContext<NotificationHub> _hubContext;
         private readonly UserInfo _userInfo;
 
-        public ChatBusinessLogic(IChatRepository chatRepository,
-            IExecutorProfileRepository executorProfileRepository,
-            IMessageRepository messageRepository,
-            IContactRepository contactRepository,
-            IHubContext<NotificationHub> hubContext,
+        public ChatBusinessLogic(IBaseWithManyRepository<ChatEntity> chatRepository,
+            IBaseRepository<DAL.Data.Entities.ExecutorProfile> executorProfileRepository,
+            IBaseWithManyRepository<DAL.Data.Entities.Message> messageRepository,
             UserInfo userInfo,
             IMapper mapper)
         {
             _chatRepository = chatRepository;
             _executorProfileRepository = executorProfileRepository;
             _messageRepository = messageRepository;
-            _contactRepository = contactRepository;
-            _hubContext = hubContext;
             _mapper = mapper;
             _userInfo = userInfo;
         }
@@ -44,10 +33,8 @@ namespace Chair.BLL.BusinessLogic.Chat
         {
             var userId = await _userInfo.GetUserIdFromToken();
 
-            // Fetch profiles first
             var profiles = await _executorProfileRepository.GetAllByPredicateAsQueryable().ToListAsync();
 
-            // Fetch chat IDs with recipients
             var chatIds = await _messageRepository
                 .GetAllByPredicateAsQueryable(x => x.SenderId == userId || x.RecipientId == userId)
                 .Select(x => new
@@ -58,13 +45,11 @@ namespace Chair.BLL.BusinessLogic.Chat
                 .Distinct()
                 .ToListAsync();
 
-            // Fetch all chats
             var chats = await _chatRepository
                 .GetAllByPredicateAsQueryable(x => chatIds.Select(c => c.ChatId).Contains(x.Id) && !x.IsDeleted)
                 .Include(x => x.Messages)
                 .ToListAsync();
 
-            // Map data in memory to avoid translation issues
             var chatDtos = chats
                 .Select(x => new ChatDto
                 {
@@ -72,7 +57,7 @@ namespace Chair.BLL.BusinessLogic.Chat
                     RecipientName = profiles.First(p => p.UserId == chatIds.First(c => c.ChatId == x.Id).RecipientId).Name,
                     RecipientProfileId = profiles.First(p => p.UserId == chatIds.First(c => c.ChatId == x.Id).RecipientId).Id,
                     RecipientProfileImg = profiles.First(p => p.UserId == chatIds.First(c => c.ChatId == x.Id).RecipientId)?.Image?.Url,
-                    UnreadMessagesAmount = x.Messages.Where(c => c.ChatId == x.Id && !c.IsRead).ToList().Count,
+                    UnreadMessagesAmount = x.Messages.Where(c => c.ChatId == x.Id && c.RecipientId == userId && c is { IsDeleted: false, IsRead: false }).ToList().Count,
                     Messages = _mapper.Map<List<MessageDto>>(x.Messages
                         .Where(c => c.ChatId == x.Id)
                         .OrderByDescending(c => c.CreatedDate)
@@ -82,8 +67,7 @@ namespace Chair.BLL.BusinessLogic.Chat
 
             return chatDtos;
         }
-
-
+        
         public async Task<ChatDto> GetChatForProfile(Guid profileId)
         {
             var userId = await _userInfo.GetUserIdFromToken();

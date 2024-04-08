@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Minio;
 using Minio.Exceptions;
 using Chair.DAL.Data.Entities;
-using Chair.DAL.Repositories.Minio;
+using Chair.DAL.Repositories.Base;
 using Minio.DataModel.Args;
 
 namespace Chair.BLL.BusinessLogic.Minio
@@ -14,9 +14,9 @@ namespace Chair.BLL.BusinessLogic.Minio
         private const string ContentType = "application/octet-stream";
 
         private readonly MinioClient _minio;
-        private readonly IMinioFileRepository _minioFileRepository;
+        private readonly IBaseWithManyRepository<MinioFile> _minioFileRepository;
 
-        public MinioBusinessLogic(IMinioFileRepository minioFileRepository, MinioClient minioClient)
+        public MinioBusinessLogic(IBaseWithManyRepository<MinioFile> minioFileRepository, MinioClient minioClient)
         {
             _minioFileRepository = minioFileRepository;
             _minio = minioClient;

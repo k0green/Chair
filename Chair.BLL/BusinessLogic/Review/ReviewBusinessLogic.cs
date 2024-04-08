@@ -1,16 +1,16 @@
 ﻿using AutoMapper;
 using Chair.BLL.Dto.Review;
-using Chair.DAL.Repositories.Review;
+using Chair.DAL.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chair.BLL.BusinessLogic.Review
 {
     public class ReviewBusinessLogic : IReviewBusinessLogic
     {
-        private readonly IReviewRepository _reviewRepository;
+        private readonly IBaseWithManyRepository<DAL.Data.Entities.Review> _reviewRepository;
         private readonly IMapper _mapper;
 
-        public ReviewBusinessLogic(IReviewRepository reviewRepository,
+        public ReviewBusinessLogic(IBaseWithManyRepository<DAL.Data.Entities.Review> reviewRepository,
             IMapper mapper)
         {
             _reviewRepository = reviewRepository;
@@ -19,21 +19,20 @@ namespace Chair.BLL.BusinessLogic.Review
 
         public async Task<List<ReviewDto>> GetAllReviewsForService(Guid executorServiceId)
         {
-            var parentReviews = await _reviewRepository
+            var allReviews = await _reviewRepository
                 .GetAllByPredicateAsQueryable(x => x.ExecutorServiceId == executorServiceId)
                 .Include(x=>x.ExecutorService.Executor.User)
-                .Where(x => x.ParentId == null)
                 .OrderByDescending(x => x.CreateDate)
                 .ToListAsync();
+
+            var parentReviews = allReviews.Where(x => x.ParentId == null).ToList();
             var parentReviewDtos = _mapper.Map<List<ReviewDto>>(parentReviews);
+
             foreach (var pR in parentReviewDtos)
             {
-                pR.Child = _mapper.Map<List<ReviewDto>>(await _reviewRepository
-                    .GetAllByPredicateAsQueryable(x => x.ExecutorServiceId == executorServiceId)
-                    .Where(x => x.ParentId == pR.Id)
-                    .OrderByDescending(x => x.CreateDate)
-                    .ToListAsync());
+                pR.Child = _mapper.Map<List<ReviewDto>>(allReviews.Where(x => x.ParentId == pR.Id));
             }
+
             return parentReviewDtos;
         }
 
@@ -50,7 +49,8 @@ namespace Chair.BLL.BusinessLogic.Review
 
         public async Task UpdateAsync(UpdateReviewDto dto)
         {
-            var entity = _mapper.Map<DAL.Data.Entities.Review>(dto);
+            var entity = await _reviewRepository.GetByIdAsync(dto.Id);
+            _mapper.Map(dto, entity);
             await _reviewRepository.UpdateAsync(entity);
             await _reviewRepository.SaveChangesAsync();
         }

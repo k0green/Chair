@@ -1,37 +1,27 @@
 ﻿using System.Linq.Expressions;
 using AutoMapper;
 using Chair.BLL.BusinessLogic.Account;
-using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.Order;
-using Chair.DAL.Data.Entities;
-using Chair.DAL.Repositories.Contact;
-using Chair.DAL.Repositories.Order;
-using Chair.DAL.Repositories.ExecutorService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.SignalR;
 using Chair.BLL.Commons;
+using Chair.DAL.Repositories.Base;
 
 namespace Chair.BLL.BusinessLogic.Order
 {
     public class OrderBusinessLogic : IOrderBusinessLogic
     {
-        private readonly IOrderRepository _orderRepository;
-        private readonly IExecutorServiceRepository _executorServiceRepository;
-        private readonly IContactRepository _contactRepository;
+        private readonly IBaseWithManyRepository<DAL.Data.Entities.Order> _orderRepository;
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly UserInfo _userInfo;
 
-        public OrderBusinessLogic(IOrderRepository orderRepository,
-            IExecutorServiceRepository executorServiceRepository,
-            IContactRepository contactRepository,
+        public OrderBusinessLogic(IBaseWithManyRepository<DAL.Data.Entities.Order> orderRepository,
             IHubContext<NotificationHub> hubContext,
             UserInfo userInfo,
             IMapper mapper)
         {
             _orderRepository = orderRepository;
-            _executorServiceRepository = executorServiceRepository;
-            _contactRepository = contactRepository;
             _hubContext = hubContext;
             _mapper = mapper;
             _userInfo = userInfo;
@@ -54,13 +44,13 @@ namespace Chair.BLL.BusinessLogic.Order
             return await GetOrderByPeriodUsePredicate(month, year, x => x.ClientId == userId);
         }
 
-        public async Task<List<OrderDto>> GetUnconfirmedOrdersForExecutor()
+        public async Task<UnconfirmedOrdersDto> GetUnconfirmedOrdersForExecutor()
         {
             var userId = await _userInfo.GetUserIdFromToken();
             return await GetUnconfirmedOrdersUsePredicate(x => x.ExecutorService.Executor.UserId == userId && !x.ClientApprove);
         }
 
-        public async Task<List<OrderDto>> GetUnconfirmedOrdersForClient()
+        public async Task<UnconfirmedOrdersDto> GetUnconfirmedOrdersForClient()
         {
             var userId = await _userInfo.GetUserIdFromToken();
             return await GetUnconfirmedOrdersUsePredicate(x => x.ClientId == userId && !x.ExecutorApprove);
@@ -68,12 +58,7 @@ namespace Chair.BLL.BusinessLogic.Order
 
         public async Task<OrderDto> GetOrderById(Guid id)
         {
-            var order = await _orderRepository.GetAllByPredicateAsQueryable(x => x.Id == id)
-                .Include(x => x.User)
-                .Include(x => x.ExecutorService)
-                .Include(x => x.ExecutorService.Executor)
-                .Include(x => x.ExecutorService.Executor.User)
-                .Include(x => x.ExecutorService.ServiceType)
+            var order = await GetOrders(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
             var orderDto = _mapper.Map<OrderDto>(order);
@@ -83,12 +68,7 @@ namespace Chair.BLL.BusinessLogic.Order
         
         private async Task<List<OrderDto>> GetOrderByPeriodUsePredicate(int month, int year, Expression<Func<DAL.Data.Entities.Order, bool>>? predicate = null)
         {
-            var orders = await _orderRepository.GetAllByPredicateAsQueryable(predicate)
-                .Include(x => x.User)
-                .Include(x => x.ExecutorService)
-                .Include(x => x.ExecutorService.Executor)
-                .Include(x => x.ExecutorService.Executor.User)
-                .Include(x => x.ExecutorService.ServiceType)
+            var orders = await GetOrders(predicate)
                 .Where(x=>x.StarDate.Year == year)
                 .Where(x=>x.StarDate.Month == month)
                 .OrderBy(x => x.StarDate)
@@ -99,20 +79,47 @@ namespace Chair.BLL.BusinessLogic.Order
             return orderDtos;
         }
         
-        private async Task<List<OrderDto>> GetUnconfirmedOrdersUsePredicate(Expression<Func<DAL.Data.Entities.Order, bool>>? predicate = null)
+        private async Task<UnconfirmedOrdersDto> GetUnconfirmedOrdersUsePredicate(Expression<Func<DAL.Data.Entities.Order, bool>>? predicate = null)
         {
-            var orders = await _orderRepository.GetAllByPredicateAsQueryable(predicate)
+            var orders = await _orderRepository
+                .GetAllByPredicateAsQueryable(predicate)
+                .Where(x => x.StarDate >= DateTime.UtcNow.Date)
+                .Select(x => new OrderDto()
+                {
+                    ExecutorServiceId = x.ExecutorServiceId,
+                    ClientApprove = x.ClientApprove,
+                    ClientComment = x.ClientComment,
+                    ClientId = x.ClientId,
+                    ClientName = x.User.AccountName,
+                    Duration = x.Duration,
+                    ExecutorApprove = x.ExecutorApprove,
+                    ExecutorComment = x.ExecutorComment,
+                    ExecutorName = x.ExecutorService.Executor.User.AccountName,
+                    ExecutorProfileName = x.ExecutorService.Executor.Name,
+                    Id = x.Id,
+                    StarDate = x.StarDate,
+                    Price = x.Price,
+                    ServiceTypeName = x.ExecutorService.ServiceType.Name
+                }).ToListAsync();
+            return new UnconfirmedOrdersDto()
+            {
+                ByClient = orders.Where(x => x is { ExecutorApprove: true, ClientApprove: false } && string.IsNullOrEmpty(x.ClientId)).ToList(),
+                ByMaster = orders.Where(x => x is { ExecutorApprove: false, ClientApprove: false } && string.IsNullOrEmpty(x.ClientId)).ToList(),
+                ForToday = orders.Where(x => x.StarDate.Date == DateTime.UtcNow.Date).ToList(),
+                ForWeek = orders.Where(x =>
+                    x.StarDate >= DateTime.UtcNow.Date && x.StarDate.Date < DateTime.UtcNow.Date.AddDays(8)).ToList(),
+            };
+        }
+
+        private IQueryable<DAL.Data.Entities.Order> GetOrders(
+            Expression<Func<DAL.Data.Entities.Order, bool>>? predicate = null)
+        {
+            return _orderRepository.GetAllByPredicateAsQueryable(predicate)
                 .Include(x => x.User)
                 .Include(x => x.ExecutorService)
                 .Include(x => x.ExecutorService.Executor)
                 .Include(x => x.ExecutorService.Executor.User)
-                .Include(x => x.ExecutorService.ServiceType)
-                .Where(x=>x.StarDate.Date >= DateTime.UtcNow.Date && x.StarDate.Date <= DateTime.UtcNow.Date.AddDays(30))
-                .ToListAsync();
-
-            var orderDtos = _mapper.Map<List<OrderDto>>(orders);
-
-            return orderDtos;
+                .Include(x => x.ExecutorService.ServiceType);
         }
 
         public async Task<List<Guid>> AddManyAsync(List<AddOrderDto> dtos)

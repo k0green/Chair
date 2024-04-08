@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Chair.BLL.MediatR.Order
 {
-    public class GetUnconfirmedOrdersForExecutorHandler : IRequestHandler<GetUnconfirmedOrdersForExecutorQuery, List<OrderDto>>
+    public class GetUnconfirmedOrdersForExecutorHandler : IRequestHandler<GetUnconfirmedOrdersForExecutorQuery, UnconfirmedOrdersDto>
     {
         private readonly IOrderBusinessLogic _orderBusinessLogic;
 
@@ -14,7 +14,7 @@ namespace Chair.BLL.MediatR.Order
             _orderBusinessLogic = orderBusinessLogic;
         }
 
-        public async Task<List<OrderDto>> Handle(GetUnconfirmedOrdersForExecutorQuery request, CancellationToken cancellationToken)
+        public async Task<UnconfirmedOrdersDto> Handle(GetUnconfirmedOrdersForExecutorQuery request, CancellationToken cancellationToken)
         {
             var result = await _orderBusinessLogic.GetUnconfirmedOrdersForExecutor();
 

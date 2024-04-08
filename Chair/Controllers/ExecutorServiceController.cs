@@ -39,6 +39,7 @@ namespace Chair.Controllers
 
         [HttpGet]
         [Route("type/{typeId:guid}")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllByTypeId([FromRoute] Guid typeId)
         {

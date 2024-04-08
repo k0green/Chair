@@ -8,8 +8,8 @@ namespace Chair.BLL.BusinessLogic.Order
         Task<List<OrderDto>> GetAllOrdersByServiceId(Guid serviceId, int month, int year);
         Task<List<OrderDto>> GetAllOrdersForClient(int month, int year);
         Task<List<OrderDto>> GetAllOrdersForExecutor(int month, int year);
-        Task<List<OrderDto>> GetUnconfirmedOrdersForExecutor();
-        Task<List<OrderDto>> GetUnconfirmedOrdersForClient();
+        Task<UnconfirmedOrdersDto> GetUnconfirmedOrdersForExecutor();
+        Task<UnconfirmedOrdersDto> GetUnconfirmedOrdersForClient();
         Task<OrderDto> GetOrderById(Guid id);
 
         Task<List<Guid>> AddManyAsync(List<AddOrderDto> dto);

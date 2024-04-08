@@ -8,8 +8,6 @@ using Chair.BLL.Dto.Order;
 using Chair.DAL.Data.Entities;
 using Chair.DAL.Extension;
 using Chair.DAL.Repositories.Base;
-using Chair.DAL.Repositories.ExecutorService;
-using Chair.DAL.Repositories.Image;
 using Microsoft.EntityFrameworkCore;
 using opr_lib;
 using ExecutorServiceDao = Chair.DAL.Data.Entities.ExecutorService;
@@ -18,12 +16,12 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 {
     public class ExecutorServiceBusinessLogic : IExecutorServiceBusinessLogic
     {
-        private readonly IExecutorServiceRepository _executorServiceRepository;
+        private readonly IBaseRepository<ExecutorServiceDao> _executorServiceRepository;
         private readonly IBaseWithManyRepository<ProductFile<ExecutorServiceDao>> _fileRepository;
         private readonly UserInfo _userInfo;
         private readonly IMapper _mapper;
 
-        public ExecutorServiceBusinessLogic(IExecutorServiceRepository executorServiceRepository,
+        public ExecutorServiceBusinessLogic(IBaseRepository<ExecutorServiceDao> executorServiceRepository,
             IBaseWithManyRepository<ProductFile<ExecutorServiceDao>> fileRepository,
             UserInfo userInfo,
             IMapper mapper)
@@ -119,10 +117,10 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                     Name = x.ServiceType.Name
                 }).ToListAsync();
         }
-        
-        public async Task<List<GroupExecutorServiceDto>> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null, FilterModelWithPeriods? filter = null)
+
+        private async Task<List<GroupExecutorServiceDto>> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null, FilterModelWithPeriods? filter = null)
         {
-            var executorServiceDtos = _executorServiceRepository
+            var executorServiceDtos = await _executorServiceRepository
                 .GetAllByPredicateAsQueryable(predicate)
                 .Select(x => new ExecutorServiceDto
                 {
@@ -147,7 +145,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                     }).ToList(),
                     ServiceTypeId = x.ServiceTypeId,
                     ServiceTypeName = x.ServiceType.Name,
-                }).ToList();
+                }).ToListAsync();
 
             if (filter != null)
             {
@@ -217,6 +215,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             entity.Id = Guid.NewGuid();
             await _executorServiceRepository.AddAsync(entity);
             await AddPhotos(dto.PhotoIds, entity.Id);
+            await _executorServiceRepository.SaveChangesAsync();
             return entity.Id;
         }
 
@@ -231,6 +230,8 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 .ToListAsync();
             await _fileRepository.RemoveManyByIdsAsync(photoIds);
             await AddPhotos(dto.PhotoIds, entity.Id);
+            await _executorServiceRepository.SaveChangesAsync();
+            await _fileRepository.SaveChangesAsync();
         }
 
         private async Task AddPhotos(IEnumerable<Guid> photoIds, Guid entityId)
@@ -244,6 +245,8 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                     MinioFileId = id
                 });
             }
+
+            await _fileRepository.SaveChangesAsync();
         }
 
 

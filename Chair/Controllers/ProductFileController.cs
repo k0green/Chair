@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chair.Controllers;
 
 public abstract class ProductFileController<TProduct> : ProductFileController<ProductFile<TProduct>, FileSaveDto, FileViewDto>
-    where TProduct : class
+    where TProduct : ProductFile
 {
     protected ProductFileController(IMediator mediator)
         : base(mediator) { }
@@ -17,7 +17,7 @@ public abstract class ProductFileController<TProduct> : ProductFileController<Pr
 [ApiController]
 [Route("[controller]")]
 public abstract class ProductFileController<TProductFile, TFileSaveDto, TFileViewDto> : ControllerBase
-        where TProductFile : ProductFile, new()
+        where TProductFile : ProductFile
         where TFileSaveDto : FileSaveDto
         where TFileViewDto : class //FileViewDto
 {
@@ -28,8 +28,8 @@ public abstract class ProductFileController<TProductFile, TFileSaveDto, TFileVie
         _mediator = mediator;
     }
 
-    [HttpPost]
-    [Route("{productId:guid}/files/filter")]
+    [HttpGet]
+    [Route("{productId:guid}/files")]
     [ProducesResponseType(typeof(List<MinioFileDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllByProductId([FromRoute] Guid productId)
     {

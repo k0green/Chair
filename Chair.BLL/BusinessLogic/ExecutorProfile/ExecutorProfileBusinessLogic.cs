@@ -3,26 +3,26 @@ using Chair.BLL.BusinessLogic.Account;
 using Chair.BLL.BusinessLogic.ExecutorService;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.DAL.Data.Entities;
-using Chair.DAL.Repositories.Contact;
-using Chair.DAL.Repositories.ExecutorProfile;
-using Chair.DAL.Repositories.ExecutorService;
+using Chair.DAL.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
+using ExecutorProfileEntity = Chair.DAL.Data.Entities.ExecutorProfile;
+using ExecutorServiceEntity = Chair.DAL.Data.Entities.ExecutorService;
 
 namespace Chair.BLL.BusinessLogic.ExecutorProfile
 {
     public class ExecutorProfileBusinessLogic : IExecutorProfileBusinessLogic
     {
-        private readonly IExecutorProfileRepository _executorProfileRepository;
-        private readonly IExecutorServiceRepository _executorServiceRepository;
+        private readonly IBaseRepository<ExecutorProfileEntity> _executorProfileRepository;
+        private readonly IBaseRepository<ExecutorServiceEntity> _executorServiceRepository;
         private readonly IExecutorServiceBusinessLogic _executorServiceBusiness;
-        private readonly IContactRepository _contactRepository;
+        private readonly IBaseWithManyRepository<Contact> _contactRepository;
         private readonly UserInfo _userInfo;
         private readonly IMapper _mapper;
 
-        public ExecutorProfileBusinessLogic(IExecutorProfileRepository executorProfileRepository,
-            IExecutorServiceRepository executorServiceRepository,
+        public ExecutorProfileBusinessLogic(IBaseRepository<ExecutorProfileEntity> executorProfileRepository,
+            IBaseRepository<ExecutorServiceEntity> executorServiceRepository,
             IExecutorServiceBusinessLogic executorServiceBussinesLogic,
-            IContactRepository contactRepository,
+            IBaseWithManyRepository<Contact> contactRepository,
             UserInfo userInfo,
             IMapper mapper)
         {
@@ -85,9 +85,6 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
             await _executorProfileRepository.AddAsync(entity);
             await _executorProfileRepository.SaveChangesAsync();
 
-            //await _contactRepository.AddManyAsync(contactsEntity);
-            //await _contactRepository.SaveChangesAsync();
-
             return entity.Id;
         }
 
@@ -108,9 +105,6 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
 
             await _executorProfileRepository.UpdateAsync(entity);
             await _executorProfileRepository.SaveChangesAsync();
-
-            //await _contactRepository.AddManyAsync(contactsEntity);
-            //await _contactRepository.SaveChangesAsync();
         }
 
         public async Task RemoveAsync(Guid id)

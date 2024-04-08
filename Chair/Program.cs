@@ -1,35 +1,10 @@
-using System.Text;
-using Chair.BLL.BusinessLogic.Account;
-using Chair.BLL.BusinessLogic.Chat;
-using Chair.BLL.BusinessLogic.ExecutorProfile;
-using Chair.BLL.BusinessLogic.ExecutorService;
-using Chair.BLL.BusinessLogic.Message;
-using Chair.BLL.BusinessLogic.Minio;
-using Chair.BLL.BusinessLogic.Order;
-using Chair.BLL.BusinessLogic.ProductFile;
-using Chair.BLL.BusinessLogic.Review;
-using Chair.BLL.BusinessLogic.ServiceType;
 using Chair.BLL.Commons;
 using Chair.BLL.Extensions.FluentValidation;
 using Chair.BLL.Extensions.MediatR;
-using Chair.BLL.MediatR.ProductFile;
 using Chair.DAL.Data;
 using Chair.DAL.Data.Entities;
-using Chair.DAL.Repositories.Base;
-using Chair.DAL.Repositories.Chat;
-using Chair.DAL.Repositories.Contact;
-using Chair.DAL.Repositories.ExecutorProfile;
-using Chair.DAL.Repositories.ExecutorService;
-using Chair.DAL.Repositories.Image;
-using Chair.DAL.Repositories.Message;
-using Chair.DAL.Repositories.Minio;
-using Chair.DAL.Repositories.Order;
-using Chair.DAL.Repositories.Review;
-using Chair.DAL.Repositories.ServiceType;
 using Chair.Infrastructure;
 using Chair.Middllewares;
-using Hangfire;
-using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -76,7 +51,6 @@ builder.Services.AddAuthentication(options =>
                 context.Token = accessToken;
             }
 
-            // Добавьте следующие строки для отладки:
             Console.WriteLine($"Access Token: {accessToken}");
             Console.WriteLine($"Request Path: {path}");
             Console.WriteLine($"Context Token: {context.Token}");
@@ -92,10 +66,10 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-builder.Services.AddDistributedMemoryCache(); // Добавляет распределенный кэш для сессий
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromDays(30); // Установите таймаут сессии по своему усмотрению
+    options.IdleTimeout = TimeSpan.FromDays(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -106,7 +80,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
 
-    // Добавление параметра авторизации Bearer Token
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -136,53 +109,19 @@ builder.Services.RegisterMediatr()
     .RegisterMediatrValidationPipeline()
     .RegisterMediatrTransactionPipeline();
 builder.Services.RegisterFluentValidationValidators();
-// Add services to the container.
 
-builder.Services.AddScoped(typeof(IBaseWithManyRepository<ProductFile<ExecutorService>>), typeof(BaseWithManyRepository<ProductFile<ExecutorService>>));
-
-builder.Services.AddScoped<IExecutorServiceBusinessLogic, ExecutorServiceBusinessLogic>();
-builder.Services.AddScoped<IExecutorServiceRepository, ExecutorServiceRepository>();
-
-builder.Services.AddScoped<IServiceTypeBusinessLogic, ServiceTypeBusinessLogic>();
-builder.Services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
-
-builder.Services.AddScoped<IAccountBusinessLogic, AccountBusinessLogic>();
-
-builder.Services.AddScoped<IExecutorProfileBusinessLogic, ExecutorProfileBusinessLogic>();
-builder.Services.AddScoped<IExecutorProfileRepository, ExecutorProfileRepository>();
-
-builder.Services.AddScoped<IImageRepository, ImageRepository>();
-
-builder.Services.AddScoped<IContactRepository, ContactRepository>();
-
-builder.Services.AddScoped<IReviewBusinessLogic, ReviewBusinessLogic>();
-builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-
-builder.Services.AddScoped<IOrderBusinessLogic, OrderBusinessLogic>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-
-builder.Services.AddScoped<IChatBusinessLogic, ChatBusinessLogic>();
-builder.Services.AddScoped<IChatRepository, ChatRepository>();
-
-builder.Services.AddScoped<IMessageBusinessLogic, MessageBusinessLogic>();
-builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-
-builder.Services.AddScoped<IMinioBusinessLogic, MinioBusinessLogic>();
-builder.Services.AddScoped<IMinioFileRepository, MinioFileRepository>();
-
-builder.Services.AddScoped<UserInfo>();
+builder.Services.RegisterServices();
 
 builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
         builder => builder
-            .WithOrigins("http://localhost:3000") // Замените этот URL на ваш фронтенд
+            .WithOrigins("http://localhost:3000")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -204,7 +143,6 @@ builder.Services.AddSingleton<MinioClient>(provider =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
