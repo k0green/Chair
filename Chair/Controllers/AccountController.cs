@@ -1,7 +1,9 @@
 using Chair.BLL.BusinessLogic.Account;
+using Chair.BLL.CQRS.Account;
 using Chair.BLL.CQRS.ServiceType;
 using Chair.BLL.Dto.Account;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chair.Controllers
@@ -72,6 +74,36 @@ namespace Chair.Controllers
         public async Task<IActionResult> GetUserId()
         {
             return Ok(_userInfo.GetCurrentUserInfo());
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("user-info/edit/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> GetUserForEdit(string id)
+        {
+            var command = new GetUserForEditQuery()
+            {
+                Id = id,
+            };
+            var result = await _mediator.Send(command);
+
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("user-info/edit")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> ChangeUserInfo([FromBody] EditUserDto dto)
+        {
+            var command = new ChangeUserInfoQuery()
+            {
+                Dto = dto
+            };
+            await _mediator.Send(command);
+
+            return Ok();
         }
     }
 }

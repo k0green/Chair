@@ -102,7 +102,6 @@ namespace Chair.BLL.BusinessLogic.Account
                 );
                 
                 return new JwtSecurityTokenHandler().WriteToken(token);
-            // ваш код генерации токена
             }
             catch (Exception ex)
             {
@@ -110,5 +109,45 @@ namespace Chair.BLL.BusinessLogic.Account
                 throw;
             }
         }
+        
+        public async Task<EditUserDto> GetUserForEdit(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                throw new InvalidOperationException("User not found");
+
+            return new EditUserDto
+            {
+                Id = user.Id,
+                Name = user.AccountName,
+                Email = user.UserName,
+            };
+        }
+        
+        public async Task ChangeUserInfo(EditUserDto model)
+        {
+            var user = await _userManager.FindByIdAsync(model.Id);
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found");
+            }
+
+            user.UserName = model.Email;
+            user.Email = model.Email;
+            user.AccountName = model.Name;
+
+            var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException("Password change failed");
+            }
+
+            result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException("User update failed");
+            }
+        }
+
     }
 }

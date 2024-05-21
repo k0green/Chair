@@ -14,5 +14,7 @@ namespace Chair.BLL.BusinessLogic.Account
         Task<string> Register(RegisterDto model);
         Task<string> Login(LoginDto model);
         Task Logout();
+        Task<EditUserDto> GetUserForEdit(string id);
+        Task ChangeUserInfo(EditUserDto model);
     }
 }
