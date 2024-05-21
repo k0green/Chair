@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Chair.BLL.BusinessLogic.Account;
 using Chair.BLL.Dto.Order;
 using Microsoft.EntityFrameworkCore;
@@ -58,25 +59,17 @@ namespace Chair.BLL.BusinessLogic.Order
 
         public async Task<OrderDto> GetOrderById(Guid id)
         {
-            var order = await GetOrders(x => x.Id == id)
+            return await GetOrders(x => x.Id == id)
                 .FirstOrDefaultAsync();
-
-            var orderDto = _mapper.Map<OrderDto>(order);
-
-            return orderDto;
         }
         
         private async Task<List<OrderDto>> GetOrderByPeriodUsePredicate(int month, int year, Expression<Func<DAL.Data.Entities.Order, bool>>? predicate = null)
         {
-            var orders = await GetOrders(predicate)
+            return await GetOrders(predicate)
                 .Where(x=>x.StarDate.Year == year)
                 .Where(x=>x.StarDate.Month == month)
                 .OrderBy(x => x.StarDate)
                 .ToListAsync();
-
-            var orderDtos = _mapper.Map<List<OrderDto>>(orders);
-
-            return orderDtos;
         }
         
         private async Task<UnconfirmedOrdersDto> GetUnconfirmedOrdersUsePredicate(Expression<Func<DAL.Data.Entities.Order, bool>>? predicate = null)
@@ -111,15 +104,11 @@ namespace Chair.BLL.BusinessLogic.Order
             };
         }
 
-        private IQueryable<DAL.Data.Entities.Order> GetOrders(
+        private IQueryable<OrderDto> GetOrders(
             Expression<Func<DAL.Data.Entities.Order, bool>>? predicate = null)
         {
             return _orderRepository.GetAllByPredicateAsQueryable(predicate)
-                .Include(x => x.User)
-                .Include(x => x.ExecutorService)
-                .Include(x => x.ExecutorService.Executor)
-                .Include(x => x.ExecutorService.Executor.User)
-                .Include(x => x.ExecutorService.ServiceType);
+                .ProjectTo<OrderDto>(_mapper.ConfigurationProvider);
         }
 
         public async Task<List<Guid>> AddManyAsync(List<AddOrderDto> dtos)

@@ -1,4 +1,6 @@
-﻿namespace Chair.DAL.Data.Entities
+﻿using Chair.DAL.Enums;
+
+namespace Chair.DAL.Data.Entities
 {
     public class Message : BaseEntity
     {
@@ -11,6 +13,7 @@
         public Guid? ReplyId { get; set; }
         public string RecipientId { get; set; }
         public string SenderId { get; set; }
+        public MessageType Type { get; set; }
         
         public User Recipient { get; set; }
         public User Sender { get; set; }

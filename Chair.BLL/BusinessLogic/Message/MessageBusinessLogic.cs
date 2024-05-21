@@ -71,10 +71,13 @@ namespace Chair.BLL.BusinessLogic.Message
                 .Where(x => !x.IsDeleted)
                 .Where(x => !x.IsRead)
                 .ToListAsync();
-            messages.ForEach(x => x.IsRead = true);
-            await _messageRepository.UpdateManyAsync(messages);
-            await _messageRepository.SaveChangesAsync();
-            await _hubContext.Clients.Users(messages.First().SenderId, recipientId).SendAsync("ReceiveAllMessages", _mapper.Map<List<MessageDto>>(messages));
+            if (messages.Any())
+            {
+                messages.ForEach(x => x.IsRead = true);
+                await _messageRepository.UpdateManyAsync(messages);
+                await _messageRepository.SaveChangesAsync();
+                await _hubContext.Clients.Users(messages.First().SenderId, recipientId).SendAsync("ReceiveAllMessages", _mapper.Map<List<MessageDto>>(messages));   
+            }
         }
 
         public async Task RemoveAsync(Guid id)

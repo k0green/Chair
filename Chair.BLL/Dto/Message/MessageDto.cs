@@ -1,4 +1,5 @@
 ﻿using Chair.BLL.Dto.Base;
+using Chair.DAL.Enums;
 
 namespace Chair.BLL.Dto.Message;
 
@@ -13,4 +14,5 @@ public class MessageDto : BaseDto
     public Guid ReplyId { get; set; }
     public string RecipientId { get; set; }
     public string SenderId { get; set; }
+    public MessageType Type { get; set; }
 }
