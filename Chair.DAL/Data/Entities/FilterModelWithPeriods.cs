@@ -2,9 +2,8 @@
 
 namespace Chair.DAL.Data.Entities;
 
-public class FilterModelWithPeriods
+public class FilterModelWithPeriods : FilterModel
 {
-    public FilterModel Filter { get; set; }
     public List<DateTime>? Dates { get; set; }
     public List<TimePeriod>? Times { get; set; }
 }

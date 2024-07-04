@@ -2,7 +2,7 @@
 using System.Text.Json;
 using FluentValidation;
 
-namespace Chair.Middllewares
+namespace Chair.Middlewares
 {
     public class ExceptionHandlingMiddleware
     {

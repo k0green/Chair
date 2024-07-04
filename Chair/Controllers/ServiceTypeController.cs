@@ -3,6 +3,7 @@ using Chair.BLL.CQRS.ServiceType;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.ServiceType;
 using Chair.DAL.Data.Entities;
+using Chair.DAL.Extension.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +29,20 @@ namespace Chair.Controllers
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllServiceTypesQuery();
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("popular")]
+        [ProducesResponseType(typeof(List<ServiceTypeDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPopular([FromBody] FilterModel filter)
+        {
+            var query = new GetPopularServiceTypesQuery()
+            {
+                Filter = filter,
+            };
             var result = await _mediator.Send(query);
 
             return Ok(result);

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Chair.BLL.Dto.ServiceType;
+using Chair.DAL.Extension;
+using Chair.DAL.Extension.Models;
 using Chair.DAL.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +22,20 @@ namespace Chair.BLL.BusinessLogic.ServiceType
         public async Task<List<ServiceTypeDto>> GetAllServiceTypes()
         {
             var serviceTypes = await _serviceTypeRepository
-                .GetAllAsync().ToListAsync();
+                .GetAllAsync()
+                .Where(x => x.ExecutorServices.ToList().Count > 0)
+                .ToListAsync();
+            var serviceTypesDtos = _mapper.Map<List<ServiceTypeDto>>(serviceTypes);
+            return serviceTypesDtos;
+        }
+
+        public async Task<List<ServiceTypeDto>> GetPopularServiceTypes(FilterModel filter)
+        {
+            var serviceTypes = await _serviceTypeRepository
+                .GetAllAsync()
+                .Where(x => x.ExecutorServices.ToList().Count > 0)
+                .OrderByDescending(x => x.ExecutorServices.ToList().Count)
+                .ToFilterView(filter).ToListAsync();
             var serviceTypesDtos = _mapper.Map<List<ServiceTypeDto>>(serviceTypes);
             return serviceTypesDtos;
         }

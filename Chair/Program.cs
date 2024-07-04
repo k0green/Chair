@@ -4,7 +4,7 @@ using Chair.BLL.Extensions.MediatR;
 using Chair.DAL.Data;
 using Chair.DAL.Data.Entities;
 using Chair.Infrastructure;
-using Chair.Middllewares;
+using Chair.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -156,6 +156,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+/*
+app.UseMiddleware<SecurityMiddleware>();
+*/
 
 app.MapControllers();
 

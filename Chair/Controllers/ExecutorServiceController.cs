@@ -37,16 +37,24 @@ namespace Chair.Controllers
             return Ok(result);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("type/{typeId:guid}")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllByTypeId([FromRoute] Guid typeId)
+        public async Task<IActionResult> GetAllByTypeId([FromRoute] Guid typeId, FilterModelWithPeriods filter)
         {
-            var query = new GetAllServicesByTypeIdQuery() { TypeId = typeId };
+            var query = new GetAllServicesByTypeIdQuery()
+            {
+                TypeId = typeId,
+                Filter = filter
+            };
             var result = await _mediator.Send(query);
 
-            return Ok(result);
+            return Ok(new
+            {
+                Values = result.Item1,
+                TotalCount = result.Item2,
+            });
         }
 
         [HttpGet]

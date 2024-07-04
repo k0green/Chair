@@ -16,17 +16,20 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 {
     public class ExecutorServiceBusinessLogic : IExecutorServiceBusinessLogic
     {
-        private readonly IBaseRepository<ExecutorServiceDao> _executorServiceRepository;
         private readonly IBaseWithManyRepository<ProductFile<ExecutorServiceDao>> _fileRepository;
+        private readonly IBaseRepository<ExecutorServiceDao> _executorServiceRepository;
+        private readonly IBaseWithManyRepository<DAL.Data.Entities.Order> _orderRepository;
         private readonly UserInfo _userInfo;
         private readonly IMapper _mapper;
 
         public ExecutorServiceBusinessLogic(IBaseRepository<ExecutorServiceDao> executorServiceRepository,
             IBaseWithManyRepository<ProductFile<ExecutorServiceDao>> fileRepository,
+            IBaseWithManyRepository<DAL.Data.Entities.Order> orderRepository,
             UserInfo userInfo,
             IMapper mapper)
         {
             _executorServiceRepository = executorServiceRepository;
+            _orderRepository = orderRepository;
             _fileRepository = fileRepository;
             _userInfo = userInfo;
             _mapper = mapper;
@@ -39,7 +42,15 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 .Select(x => new ExecutorServiceDto
                 {
                     Id = x.Id,
-                    Address = x.Address,
+                    Place = new Place()
+                    {
+                        Address  = x.Address,
+                        Position = new Position()
+                        {
+                            Lng = x.Lng,
+                            Lat = x.Lat,
+                        }
+                    },
                     Orders = x.Orders.Any() ? x.Orders.Select(o => new OrderDto()
                     {
                         Id = o.Id,
@@ -63,7 +74,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             return executorServiceDtos;
         }
         
-        public async Task<List<GroupExecutorServiceDto>> GetAllServices(FilterModelWithPeriods filter)
+        public async Task<(List<GroupExecutorServiceDto>, int)> GetAllServices(FilterModelWithPeriods filter)
         {
             return await GetAllServicesByPredicate(filter: filter);
         }
@@ -71,7 +82,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
         public async Task<ExecutorServiceDto> GetOptimizeService(FilterModelWithPeriods filter, Guid serviceTypeId, List<Condition> conditions)
         {
             Dictionary<int, Guid> myDictionary = new Dictionary<int, Guid>();
-            var items = (await GetAllServicesByPredicate(x => x.ServiceTypeId == serviceTypeId, filter: filter)).First();
+            var items = (await GetAllServicesByPredicate(x => x.ServiceTypeId == serviceTypeId, filter: filter)).Item1.First();
             var matrix = new decimal?[items.Services.Count(), 4];
             var i = 0;
             foreach (var item in items.Services)
@@ -90,9 +101,9 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             return items.Services.First(x => x.Id == resultId);
         }
         
-        public async Task<List<GroupExecutorServiceDto>> GetAllServicesByTypeId(Guid serviceTypeId)
+        public async Task<(List<GroupExecutorServiceDto>, int)> GetAllServicesByTypeId(Guid serviceTypeId, FilterModelWithPeriods filter)
         {
-            return await GetAllServicesByPredicate(x => x.ServiceTypeId == serviceTypeId);
+            return await GetAllServicesByPredicate(x => x.ServiceTypeId == serviceTypeId, filter: filter);
         }
         
         public async Task<List<LookupDto>> GetAllServicesNamesByUserId()
@@ -118,14 +129,22 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 }).ToListAsync();
         }
 
-        private async Task<List<GroupExecutorServiceDto>> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null, FilterModelWithPeriods? filter = null)
+        private async Task<(List<GroupExecutorServiceDto>, int)> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null, FilterModelWithPeriods? filter = null)
         {
             var executorServiceDtos = await _executorServiceRepository
                 .GetAllByPredicateAsQueryable(predicate)
                 .Select(x => new ExecutorServiceDto
                 {
                     Id = x.Id,
-                    Address = x.Address,
+                    Place = new Place()
+                    {
+                      Address  = x.Address,
+                      Position = new Position()
+                      {
+                          Lng = x.Lng,
+                          Lat = x.Lat,
+                      }
+                    },
                     Orders = x.Orders.Any() ? x.Orders.Select(o => new OrderDto()
                     {
                         Id = o.Id,
@@ -162,8 +181,9 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 }
             }
 
-            if (filter?.Filter != null)
-                executorServiceDtos = executorServiceDtos.AsQueryable().ToFilterView(filter.Filter).ToList();
+            var totalCount = executorServiceDtos.Count;
+            /*if (filter?.Filter != null && filter.Filter.Filters != null)*/
+            executorServiceDtos = executorServiceDtos.AsQueryable().ToFilterView(filter, out totalCount).ToList();
 
             var groupedServices = executorServiceDtos
                 .GroupBy(x => new { x.ServiceTypeId, x.ServiceTypeName })
@@ -175,7 +195,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 })
                 .ToList();
             
-            return groupedServices;
+            return (groupedServices, totalCount);
         }
 
         public async Task<ExecutorServiceDto> GetExecutorServiceById(Guid id)
@@ -185,7 +205,15 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 .Select(x => new ExecutorServiceDto
                 {
                     Id = x.Id,
-                    Address = x.Address,
+                    Place = new Place()
+                    {
+                        Address  = x.Address,
+                        Position = new Position()
+                        {
+                            Lng = x.Lng,
+                            Lat = x.Lat,
+                        }
+                    },
                     Orders = x.Orders.Any() ? x.Orders.Select(o => new OrderDto()
                     {
                         Id = o.Id,
@@ -211,12 +239,33 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 
         public async Task<Guid> AddAsync(AddExecutorServiceDto dto)
         {
-            var entity = _mapper.Map<DAL.Data.Entities.ExecutorService>(dto);
-            entity.Id = Guid.NewGuid();
-            await _executorServiceRepository.AddAsync(entity);
-            await AddPhotos(dto.PhotoIds, entity.Id);
-            await _executorServiceRepository.SaveChangesAsync();
-            return entity.Id;
+            var existingEntity = await _executorServiceRepository
+                .GetAllByPredicateAsQueryable(x => x.ExecutorId == dto.ExecutorId)
+                .FirstOrDefaultAsync(x => x.ServiceTypeId == dto.ServiceTypeId);
+            if (existingEntity != null)
+            {
+                await UpdateAsync(new UpdateExecutorServiceDto
+                {
+                    Description = dto.Description,
+                    Duration = dto.Duration,
+                    ExecutorId = dto.ExecutorId,
+                    Id = existingEntity.Id,
+                    PhotoIds = dto.PhotoIds,
+                    Place = dto.Place,
+                    Price = dto.Price,
+                    ServiceTypeId = dto.ServiceTypeId,
+                });
+            }
+            else
+            {
+                var entity = _mapper.Map<DAL.Data.Entities.ExecutorService>(dto);
+                entity.Id = Guid.NewGuid();
+                await _executorServiceRepository.AddAsync(entity);
+                await AddPhotos(dto.PhotoIds, entity.Id);
+                await _executorServiceRepository.SaveChangesAsync();   
+                return entity.Id;
+            }
+            return existingEntity.Id;
         }
 
         public async Task UpdateAsync(UpdateExecutorServiceDto dto)
@@ -252,7 +301,15 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 
         public async Task RemoveAsync(Guid id)
         {
-            await _executorServiceRepository.RemoveByIdAsync(id);
+            var entity = await _executorServiceRepository.GetByIdAsync(id);
+            if (entity == null)
+                throw new Exception("Card not found");
+            var orders = _orderRepository.GetAllByPredicateAsQueryable(x => x.ExecutorServiceId == id)
+                .Any(x => x.StarDate >= DateTime.Now && x.ClientId != null);
+            if (orders)
+                throw new Exception("Card has orders");
+            entity.IsDeleted = true;
+            await _executorServiceRepository.UpdateAsync(entity);
             await _executorServiceRepository.SaveChangesAsync();
         }
     }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Chair.BLL.Dto.Base;
 using Chair.BLL.Dto.Chat;
 using Chair.BLL.Dto.Contacts;
 using Chair.BLL.Dto.ExecutorService;
@@ -21,13 +22,40 @@ namespace Chair.Infrastructure
                 .ForMember(dest => dest.ExecutorName, opt => opt.MapFrom(src => src.Executor.Name))
                 .ForMember(dest => dest.AvailableSlots, opt => opt.MapFrom(src => src.Orders.Count))
                 .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Average(y => y.Stars)))
+                .ForMember(dest => dest.Place, opt => opt.MapFrom(src => new Place()
+                {
+                    Address  = src.Address,
+                    Position = new Position()
+                    {
+                        Lng = src.Lng,
+                        Lat = src.Lat,
+                    }
+                }))
                 //.ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration.ToString("hh:mm:ss")))
                 .ReverseMap();
             CreateMap<ExecutorService, ExecutorServiceDto>()
                 .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Images))
                 .ReverseMap();
-            CreateMap<ExecutorService, UpdateExecutorServiceDto>().ReverseMap();
-            CreateMap<ExecutorService, AddExecutorServiceDto>().ReverseMap();
+            CreateMap<ExecutorService, UpdateExecutorServiceDto>()
+                .ForMember(dest => dest.Place, opt => opt.MapFrom(src => new Place()
+                {
+                    Address  = src.Address,
+                    Position = new Position()
+                    {
+                        Lng = src.Lng,
+                        Lat = src.Lat,
+                    }
+                })).ReverseMap();
+            CreateMap<ExecutorService, AddExecutorServiceDto>()
+                .ForMember(dest => dest.Place, opt => opt.MapFrom(src => new Place()
+                {
+                    Address  = src.Address,
+                    Position = new Position()
+                    {
+                        Lng = src.Lng,
+                        Lat = src.Lat,
+                    }
+                })).ReverseMap();
             #endregion
 
 

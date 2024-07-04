@@ -6,12 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Chair.BLL.Dto.ServiceType;
 using Chair.DAL.Data.Entities;
+using Chair.DAL.Extension.Models;
 
 namespace Chair.BLL.BusinessLogic.ServiceType
 {
     public interface IServiceTypeBusinessLogic
     {
         Task<List<ServiceTypeDto>> GetAllServiceTypes();
+        Task<List<ServiceTypeDto>> GetPopularServiceTypes(FilterModel filter);
         Task<ServiceTypeDto> GetServiceTypeById(Guid id);
         Task<Guid> AddAsync(AddServiceTypeDto dto);
         Task UpdateAsync(ServiceTypeDto dto);

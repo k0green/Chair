@@ -109,6 +109,15 @@ namespace Chair.DAL.Migrations
                     b.Property<Guid>("ExecutorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("Lat")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Lng")
+                        .HasColumnType("float");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 

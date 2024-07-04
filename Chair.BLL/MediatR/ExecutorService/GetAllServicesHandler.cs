@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Chair.BLL.MediatR.ExecutorService
 {
-    public class GetAllServicesHandler : IRequestHandler<GetAllServicesQuery, List<GroupExecutorServiceDto>>
+    public class GetAllServicesHandler : IRequestHandler<GetAllServicesQuery, (List<GroupExecutorServiceDto>, int)>
     {
         private readonly IExecutorServiceBusinessLogic _executorServiceBusinessLogic;
 
@@ -14,7 +14,7 @@ namespace Chair.BLL.MediatR.ExecutorService
             _executorServiceBusinessLogic = executorServiceBusinessLogic;
         }
 
-        public async Task<List<GroupExecutorServiceDto>> Handle(GetAllServicesQuery request, CancellationToken cancellationToken)
+        public async Task<(List<GroupExecutorServiceDto>, int)> Handle(GetAllServicesQuery request, CancellationToken cancellationToken)
         {
             var result = await _executorServiceBusinessLogic.GetAllServices(filter: request.Filter);
 

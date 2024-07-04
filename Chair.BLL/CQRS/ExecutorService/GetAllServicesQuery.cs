@@ -5,7 +5,7 @@ using Chair.DAL.Extension.Models;
 
 namespace Chair.BLL.CQRS.ExecutorService
 {
-    public class GetAllServicesQuery : IRequest<List<GroupExecutorServiceDto>>
+    public class GetAllServicesQuery : IRequest<(List<GroupExecutorServiceDto>, int)>
     {
         public FilterModelWithPeriods Filter { get; set; }
     }
