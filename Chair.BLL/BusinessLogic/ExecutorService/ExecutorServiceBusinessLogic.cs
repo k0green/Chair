@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using AutoMapper;
 using Chair.BLL.BusinessLogic.Account;
 using Chair.BLL.Dto.Base;
@@ -39,6 +41,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
         {
             var executorServiceDtos = _executorServiceRepository
                 .GetAllByPredicateAsQueryable(x => x.ExecutorId == executorId)
+                .Where(x => !x.IsDeleted)
                 .Select(x => new ExecutorServiceDto
                 {
                     Id = x.Id,
@@ -129,10 +132,15 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 }).ToListAsync();
         }
 
-        private async Task<(List<GroupExecutorServiceDto>, int)> GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null, FilterModelWithPeriods? filter = null)
+        private async Task<(List<GroupExecutorServiceDto>, int)> 
+            GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null,
+                FilterModelWithPeriods? filter = null)
         {
+            var today = DateTime.Today;
+
             var executorServiceDtos = await _executorServiceRepository
                 .GetAllByPredicateAsQueryable(predicate)
+                .Where(x => !x.IsDeleted)
                 .Select(x => new ExecutorServiceDto
                 {
                     Id = x.Id,
@@ -152,9 +160,10 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                         ClientId = o.ClientId,
                     }).ToList() : new List<OrderDto>(),
                     Description = x.Description,
-                    Duration = x.Duration,
+                    Duration = today + x.Duration.TimeOfDay,
                     ExecutorId = x.ExecutorId,
                     ExecutorName = x.Executor.Name,
+                    UserId = x.Executor.UserId,
                     Price = x.Price,
                     Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 5,
                     Photos = x.Images.Select(i => new ShortMinioFileDto()
@@ -170,19 +179,33 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             {
                 if (filter is { Times: not null, Dates: not null } && (filter.Dates.Any() || filter.Times.Any()))
                 {
-                    executorServiceDtos = executorServiceDtos
-                        .Where(x =>
-                            x.Orders.Any(o =>
-                                (filter.Dates.Any() && filter.Dates.Select(d => d.Date).Contains(o.StarDate.Date)) ||
-                                (filter.Times.Any() && filter.Times.Any(t => o.StarDate.TimeOfDay >= t.StartTime.TimeOfDay && o.StarDate <= t.EndTime))
-                            )
-                        )
-                        .ToList();
+                    if(filter.Dates.Any())
+                        executorServiceDtos = executorServiceDtos.Where(x => x.Orders.Any(o =>
+                                   filter.Dates.Select(d => d.Date).Contains(o.StarDate.Date)))
+                            .ToList();
+                    if(filter.Times.Any())
+                        executorServiceDtos = executorServiceDtos
+                            .Where(x => x.Orders.Any(o => 
+                                filter.Times.Any(t => o.StarDate.TimeOfDay >= t.StartTime.TimeOfDay
+                                                                            && o.StarDate.TimeOfDay <= t.EndTime.TimeOfDay))).ToList();
+                }
+                if (filter.Filter != null && filter.Filter.Filters.Any(x => x.Field == "duration"))
+                {
+                    var filters = filter.Filter.Filters.Where(x => x.Field == "duration").Select(x => x).ToList();
+                    var timezone = (DateTime.Now - DateTime.UtcNow);
+                    foreach(var item in filters)
+                    {
+                        if (item.Operator == ">=")
+                            executorServiceDtos = executorServiceDtos.Where(x => x.Duration.TimeOfDay >= DateTime.Parse(item.Value.ToString()).AddMinutes(-(timezone.Hours*timezone.Minutes)).TimeOfDay).ToList();
+                        if(item.Operator == "<=")
+                            executorServiceDtos = executorServiceDtos.Where(x => x.Duration.TimeOfDay <= DateTime.Parse(item.Value.ToString()).AddMinutes(-(timezone.Hours * timezone.Minutes)).TimeOfDay).ToList();
+                    }
+                    filter.Filter.Filters = filter.Filter.Filters.Except(filters).ToList();
                 }
             }
 
             var totalCount = executorServiceDtos.Count;
-            /*if (filter?.Filter != null && filter.Filter.Filters != null)*/
+ 
             executorServiceDtos = executorServiceDtos.AsQueryable().ToFilterView(filter, out totalCount).ToList();
 
             var groupedServices = executorServiceDtos
@@ -262,9 +285,11 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 entity.Id = Guid.NewGuid();
                 await _executorServiceRepository.AddAsync(entity);
                 await AddPhotos(dto.PhotoIds, entity.Id);
-                await _executorServiceRepository.SaveChangesAsync();   
+                await _executorServiceRepository.SaveChangesAsync();  
+                await _fileRepository.SaveChangesAsync();
                 return entity.Id;
             }
+
             return existingEntity.Id;
         }
 
@@ -277,25 +302,32 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 .GetAllByPredicateAsQueryable(x => x.ProductId == entity.Id)
                 .Select(x=>x.Id)
                 .ToListAsync();
-            await _fileRepository.RemoveManyByIdsAsync(photoIds);
-            await AddPhotos(dto.PhotoIds, entity.Id);
+            if (dto.RemovePhotoIds.Any())
+            {
+                var deletePhotos = await _fileRepository
+                    .GetAllByPredicateAsQueryable(x => dto.RemovePhotoIds.Contains(x.Id))
+                    .ToListAsync();
+                await _fileRepository.RemoveManyAsync(deletePhotos);   
+            }
+            await AddPhotos(dto.PhotoIds.Except(photoIds), entity.Id);
             await _executorServiceRepository.SaveChangesAsync();
             await _fileRepository.SaveChangesAsync();
         }
 
         private async Task AddPhotos(IEnumerable<Guid> photoIds, Guid entityId)
         {
-            foreach (var id in photoIds)
+            if (photoIds != null && photoIds.Any())
             {
-                await _fileRepository.AddAsync(new ProductFile<ExecutorServiceDao>()
+                foreach (var id in photoIds)
                 {
-                    Id = Guid.NewGuid(),
-                    ProductId = entityId,
-                    MinioFileId = id
-                });
+                    await _fileRepository.AddAsync(new ProductFile<ExecutorServiceDao>()
+                    {
+                        Id = Guid.NewGuid(),
+                        ProductId = entityId,
+                        MinioFileId = id
+                    });
+                }
             }
-
-            await _fileRepository.SaveChangesAsync();
         }
 
 

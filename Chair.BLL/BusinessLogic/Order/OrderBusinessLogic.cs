@@ -96,8 +96,8 @@ namespace Chair.BLL.BusinessLogic.Order
                 }).ToListAsync();
             return new UnconfirmedOrdersDto()
             {
-                ByClient = orders.Where(x => x is { ExecutorApprove: true, ClientApprove: false } && string.IsNullOrEmpty(x.ClientId)).ToList(),
-                ByMaster = orders.Where(x => x is { ExecutorApprove: false, ClientApprove: false } && string.IsNullOrEmpty(x.ClientId)).ToList(),
+                ByClient = orders.Where(x => x is { ExecutorApprove: true, ClientApprove: false } && !string.IsNullOrEmpty(x.ClientId)).ToList(),
+                ByMaster = orders.Where(x => x is { ExecutorApprove: false, ClientApprove: false } && !string.IsNullOrEmpty(x.ClientId)).ToList(),
                 ForToday = orders.Where(x => x.StarDate.Date == DateTime.UtcNow.Date).ToList(),
                 ForWeek = orders.Where(x =>
                     x.StarDate >= DateTime.UtcNow.Date && x.StarDate.Date < DateTime.UtcNow.Date.AddDays(8)).ToList(),
@@ -124,8 +124,9 @@ namespace Chair.BLL.BusinessLogic.Order
 
         public async Task UpdateAsync(UpdateOrderDto dto)
         {
-            var entity = _mapper.Map<DAL.Data.Entities.Order>(dto);
-
+            var entity = await _orderRepository.GetByIdAsync(dto.Id);
+            dto.ClientId = entity.ClientId;
+            _mapper.Map(dto, entity);
             await _orderRepository.UpdateAsync(entity);
             await _orderRepository.SaveChangesAsync();
         }
@@ -168,7 +169,6 @@ namespace Chair.BLL.BusinessLogic.Order
             order.ClientId = userId;
             order.ClientComment = null;
             await _orderRepository.UpdateAsync(order);
-
             await _orderRepository.SaveChangesAsync();
         }
 

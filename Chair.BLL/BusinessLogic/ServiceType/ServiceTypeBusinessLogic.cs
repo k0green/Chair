@@ -24,6 +24,7 @@ namespace Chair.BLL.BusinessLogic.ServiceType
             var serviceTypes = await _serviceTypeRepository
                 .GetAllAsync()
                 .Where(x => x.ExecutorServices.ToList().Count > 0)
+                .OrderByDescending(x => x.ExecutorServices.ToList().Count)
                 .ToListAsync();
             var serviceTypesDtos = _mapper.Map<List<ServiceTypeDto>>(serviceTypes);
             return serviceTypesDtos;

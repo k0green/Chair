@@ -10,6 +10,7 @@ namespace Chair.BLL.Dto.ExecutorService
         public Guid ServiceTypeId { get; set; }
         public string ServiceTypeName { get; set; }
         public Guid ExecutorId { get; set; }
+        public string UserId { get; set; }
         public string ExecutorName { get; set; }
         public string Description { get; set; }
         public decimal Rating { get; set; }

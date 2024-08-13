@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
                        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var frontServer = builder.Configuration.GetConnectionString("FrontServer");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddIdentity<User, IdentityRole>()
@@ -121,7 +122,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
         builder => builder
-            .WithOrigins("http://localhost:3000")
+            .WithOrigins(frontServer)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());

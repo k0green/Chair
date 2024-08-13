@@ -44,6 +44,8 @@ namespace Chair.DAL.Extension
         {
             if (filter?.Logic == null) return queryable;
             var filters = GetAllFilters(filter);
+            if(filters.Count() == 0 || filters.Any(x => x.Field == null))
+                return queryable;
             var values = filters.Select(f => f.Value.ToString()).ToArray();
             var where = Transform(filter, filters);
             queryable = queryable.Where(ReplaceValues(values, where));

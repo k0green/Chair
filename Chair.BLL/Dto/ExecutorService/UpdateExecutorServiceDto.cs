@@ -11,5 +11,6 @@ namespace Chair.BLL.Dto.ExecutorService
         public DateTime Duration { get; set; }
         public decimal Price { get; set; }
         public List<Guid> PhotoIds { get; set; }
+        public List<Guid> RemovePhotoIds { get; set; }
     }
 }
