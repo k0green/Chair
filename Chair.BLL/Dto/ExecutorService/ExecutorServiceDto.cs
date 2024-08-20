@@ -17,6 +17,9 @@ namespace Chair.BLL.Dto.ExecutorService
         public decimal Price { get; set; }
         public bool IsDeleted { get; set; }
         public int AvailableSlots => Orders.Count(x => string.IsNullOrEmpty(x.ClientId) && x.StarDate >= DateTime.Now);
+        public int SuccessOrdersAmount => Orders.Count(x => !string.IsNullOrEmpty(x.ClientId)
+                                                            && x.StarDate <= DateTime.Now
+                                                            && x is { ClientApprove: true, ExecutorApprove: true });
         [JsonIgnore]public List<OrderDto> Orders { get; set; }
         public DateTime Duration { get; set; }
         public Place Place { get; set; }

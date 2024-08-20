@@ -1,6 +1,7 @@
 ﻿using Chair.BLL.BusinessLogic.Account;
 using Chair.BLL.BusinessLogic.Chat;
 using Chair.BLL.BusinessLogic.ExecutorProfile;
+using Chair.BLL.BusinessLogic.ExecutorPromotion;
 using Chair.BLL.BusinessLogic.ExecutorService;
 using Chair.BLL.BusinessLogic.Message;
 using Chair.BLL.BusinessLogic.Minio;
@@ -18,6 +19,7 @@ public static class ServiceConfiguration
         services.AddScoped(typeof(IBaseWithManyRepository<ProductFile<ExecutorService>>), typeof(BaseWithManyRepository<ProductFile<ExecutorService>>));
 
         services.AddScoped<IExecutorServiceBusinessLogic, ExecutorServiceBusinessLogic>();
+        services.AddScoped<IExecutorPromotionBusinessLogic, ExecutorPromotionBusinessLogic>();
         services.AddScoped<IServiceTypeBusinessLogic, ServiceTypeBusinessLogic>();
         services.AddScoped<IAccountBusinessLogic, AccountBusinessLogic>();
         services.AddScoped<IExecutorProfileBusinessLogic, ExecutorProfileBusinessLogic>();

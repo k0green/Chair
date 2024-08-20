@@ -158,6 +158,8 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                         Id = o.Id,
                         StarDate = o.StarDate,
                         ClientId = o.ClientId,
+                        ExecutorApprove = o.ExecutorApprove,
+                        ClientApprove = o.ClientApprove,
                     }).ToList() : new List<OrderDto>(),
                     Description = x.Description,
                     Duration = today + x.Duration.TimeOfDay,
@@ -165,7 +167,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                     ExecutorName = x.Executor.Name,
                     UserId = x.Executor.UserId,
                     Price = x.Price,
-                    Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 5,
+                    Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 0,
                     Photos = x.Images.Select(i => new ShortMinioFileDto()
                     {
                         Id = i.Id,

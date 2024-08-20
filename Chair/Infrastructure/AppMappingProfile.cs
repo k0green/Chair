@@ -20,7 +20,14 @@ namespace Chair.Infrastructure
             CreateMap<ExecutorService, ExecutorServiceDto>()
                 .ForMember(dest => dest.ServiceTypeName, opt => opt.MapFrom(src => src.ServiceType.Name))
                 .ForMember(dest => dest.ExecutorName, opt => opt.MapFrom(src => src.Executor.Name))
-                .ForMember(dest => dest.AvailableSlots, opt => opt.MapFrom(src => src.Orders.Count))
+                /*.ForMember(dest => dest.AvailableSlots, opt => opt.MapFrom(src => src.Orders
+                    .Where(x => x.StarDate >= DateTime.UtcNow)
+                    .Where(x => x.ClientId == null)
+                    .Count()))
+                .ForMember(dest => dest.AvailableSlots, opt => opt.MapFrom(src => src.Orders
+                    .Where(x => x.StarDate >= DateTime.UtcNow)
+                    .Where(x => x.ClientId == null)
+                    .Count()))*/
                 .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Average(y => y.Stars)))
                 .ForMember(dest => dest.Place, opt => opt.MapFrom(src => new Place()
                 {
