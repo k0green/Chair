@@ -11,6 +11,7 @@
         public bool ExecutorApprove { get; set; }
         public bool ClientApprove { get; set; }
         public decimal? Price { get; set; }
+        public decimal? DiscountPrice { get; set; }
 
         public ExecutorService ExecutorService { get; set; }
         public User User { get; set; }

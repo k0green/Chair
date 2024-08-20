@@ -14,5 +14,6 @@ namespace Chair.BLL.Dto.Order
         public bool ExecutorApprove => false;
         public bool ClientApprove => false;
         public decimal? Price { get; set; }
+        public decimal? DiscountPrice { get; set; }
     }
 }

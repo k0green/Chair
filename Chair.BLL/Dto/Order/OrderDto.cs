@@ -19,6 +19,7 @@ namespace Chair.BLL.Dto.Order
         public bool ExecutorApprove { get; set; }
         public bool ClientApprove { get; set; }
         public decimal? Price { get; set; }
+        public decimal? DiscountPrice { get; set; }
         public string ServiceTypeName { get; set; }
     }
 }

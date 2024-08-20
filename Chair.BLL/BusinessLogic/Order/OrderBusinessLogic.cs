@@ -92,6 +92,7 @@ namespace Chair.BLL.BusinessLogic.Order
                     Id = x.Id,
                     StarDate = x.StarDate,
                     Price = x.Price,
+                    DiscountPrice = x.DiscountPrice,
                     ServiceTypeName = x.ExecutorService.ServiceType.Name
                 }).ToListAsync();
             return new UnconfirmedOrdersDto()
