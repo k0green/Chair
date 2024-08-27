@@ -7,6 +7,7 @@ namespace Chair.DAL.Data
     public class ApplicationDbContext : IdentityDbContext<User>
     {
         public DbSet<ProductFile<ExecutorService>> ExecutorServiceFiles { get; set; }
+        public DbSet<ProductFile<Review>> ReviewFiles { get; set; }
         public DbSet<MinioFile> MinioFiles { get; set; }
         public DbSet<ServiceType> ServiceTypes { get; set; }
         public DbSet<ExecutorService> ExecutorServices { get; set; }

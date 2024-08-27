@@ -1,4 +1,5 @@
 ﻿using Chair.BLL.Dto.Base;
+using Chair.BLL.Dto.Minio;
 
 namespace Chair.BLL.Dto.Review
 {
@@ -13,5 +14,6 @@ namespace Chair.BLL.Dto.Review
         public Guid? ParentId { get; set; }
         public bool IsModify { get; set; }
         public List<ReviewDto> Child { get; set; }
+        public List<ShortMinioFileDto> Photos { get; set; }
     }
 }

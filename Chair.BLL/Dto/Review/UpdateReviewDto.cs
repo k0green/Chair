@@ -11,5 +11,7 @@ namespace Chair.BLL.Dto.Review
         public DateTime CreateDate { get; set; }
         public Guid? ParentId { get; set; }
         public bool IsModify => true;
+        public List<Guid> PhotoIds { get; set; }
+        public List<Guid> RemovePhotoIds { get; set; }
     }
 }

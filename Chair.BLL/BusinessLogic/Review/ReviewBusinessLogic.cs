@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Chair.BLL.Dto.Review;
+using Chair.DAL.Data.Entities;
 using Chair.DAL.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,12 +10,15 @@ namespace Chair.BLL.BusinessLogic.Review
     public class ReviewBusinessLogic : IReviewBusinessLogic
     {
         private readonly IBaseWithManyRepository<DAL.Data.Entities.Review> _reviewRepository;
+        private readonly IBaseWithManyRepository<ProductFile<DAL.Data.Entities.Review>> _fileRepository;
         private readonly IMapper _mapper;
 
         public ReviewBusinessLogic(IBaseWithManyRepository<DAL.Data.Entities.Review> reviewRepository,
+            IBaseWithManyRepository<ProductFile<DAL.Data.Entities.Review>> fileRepository,
             IMapper mapper)
         {
             _reviewRepository = reviewRepository;
+            _fileRepository = fileRepository;
             _mapper = mapper;
         }
 
@@ -21,19 +26,20 @@ namespace Chair.BLL.BusinessLogic.Review
         {
             var allReviews = await _reviewRepository
                 .GetAllByPredicateAsQueryable(x => x.ExecutorServiceId == executorServiceId)
-                .Include(x=>x.ExecutorService.Executor.User)
+                .Include(x=>x.User)
+                .Include(x=>x.Images)
                 .OrderByDescending(x => x.CreateDate)
+                .ProjectTo<ReviewDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
 
             var parentReviews = allReviews.Where(x => x.ParentId == null).ToList();
-            var parentReviewDtos = _mapper.Map<List<ReviewDto>>(parentReviews);
 
-            foreach (var pR in parentReviewDtos)
+            foreach (var pR in parentReviews)
             {
                 pR.Child = _mapper.Map<List<ReviewDto>>(allReviews.Where(x => x.ParentId == pR.Id));
             }
 
-            return parentReviewDtos;
+            return parentReviews;
         }
 
         public async Task<Guid> AddAsync(AddReviewDto dto)
@@ -43,6 +49,7 @@ namespace Chair.BLL.BusinessLogic.Review
             entity.CreateDate = DateTime.Now;
 
             await _reviewRepository.AddAsync(entity);
+            await AddPhotos(dto.PhotoIds, entity.Id);
             await _reviewRepository.SaveChangesAsync();
             return entity.Id;
         }
@@ -52,6 +59,18 @@ namespace Chair.BLL.BusinessLogic.Review
             var entity = await _reviewRepository.GetByIdAsync(dto.Id);
             _mapper.Map(dto, entity);
             await _reviewRepository.UpdateAsync(entity);
+            var photoIds = await _fileRepository
+                .GetAllByPredicateAsQueryable(x => x.ProductId == entity.Id)
+                .Select(x=>x.Id)
+                .ToListAsync();
+            if (dto.RemovePhotoIds.Any())
+            {
+                var deletePhotos = await _fileRepository
+                    .GetAllByPredicateAsQueryable(x => dto.RemovePhotoIds.Contains(x.Id))
+                    .ToListAsync();
+                await _fileRepository.RemoveManyAsync(deletePhotos);   
+            }
+            await AddPhotos(dto.PhotoIds.Except(photoIds), entity.Id);
             await _reviewRepository.SaveChangesAsync();
         }
 
@@ -63,6 +82,22 @@ namespace Chair.BLL.BusinessLogic.Review
                 .Select(x => x.Id)
                 .ToListAsync());
             await _reviewRepository.SaveChangesAsync();
+        }
+        
+        private async Task AddPhotos(IEnumerable<Guid> photoIds, Guid entityId)
+        {
+            if (photoIds != null && photoIds.Any())
+            {
+                foreach (var id in photoIds)
+                {
+                    await _fileRepository.AddAsync(new ProductFile<DAL.Data.Entities.Review>()
+                    {
+                        Id = Guid.NewGuid(),
+                        ProductId = entityId,
+                        MinioFileId = id
+                    });
+                }
+            }
         }
     }
 }

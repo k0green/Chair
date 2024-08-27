@@ -4,6 +4,7 @@ using Chair.BLL.Dto.Chat;
 using Chair.BLL.Dto.Contacts;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.Message;
+using Chair.BLL.Dto.Minio;
 using Chair.BLL.Dto.Order;
 using Chair.BLL.Dto.Review;
 using Chair.BLL.Dto.ServiceType;
@@ -85,7 +86,12 @@ namespace Chair.Infrastructure
 
             CreateMap<Review, AddReviewDto>().ReverseMap();
             CreateMap<Review, ReviewDto>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ExecutorService.Executor.User.AccountName))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.AccountName))
+                .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Images.Select(i => new ShortMinioFileDto()
+                {
+                    Id = i.Id,
+                    Url = i.MinioFile.Url
+                }).ToList()))
                 .ReverseMap();
             CreateMap<Review, UpdateReviewDto>().ReverseMap();
 

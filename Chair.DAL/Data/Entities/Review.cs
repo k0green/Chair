@@ -11,5 +11,7 @@
         public bool IsModify { get; set; }
 
         public ExecutorService ExecutorService { get; set; }
+        public User User { get; set; }
+        public ICollection<ProductFile<Review>> Images { get; set; }
     }
 }

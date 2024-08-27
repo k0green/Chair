@@ -8,5 +8,6 @@
         public int Stars { get; set; }
         public Guid? ParentId { get; set; }
         public bool IsModify => false;
+        public List<Guid> PhotoIds { get; set; }
     }
 }
