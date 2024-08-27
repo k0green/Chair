@@ -1,5 +1,6 @@
 ﻿using Chair.BLL.Dto.Base;
 using Chair.BLL.Dto.Contacts;
+using Chair.BLL.Dto.ExecutorPromotion;
 
 namespace Chair.BLL.Dto.ExecutorService
 {
@@ -12,5 +13,6 @@ namespace Chair.BLL.Dto.ExecutorService
         public string ImageUrl { get; set; }
         public List<ContactsDto> Contacts { get; set; } = new();
         public List<ExecutorServiceDto> Services { get; set; } = new();
+        public List<ExecutorPromotionDto> Promotions { get; set; } = new();
     }
 }

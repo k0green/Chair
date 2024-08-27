@@ -7,6 +7,7 @@ using Chair.DAL.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 using ExecutorProfileEntity = Chair.DAL.Data.Entities.ExecutorProfile;
 using ExecutorServiceEntity = Chair.DAL.Data.Entities.ExecutorService;
+using Chair.BLL.BusinessLogic.ExecutorPromotion;
 
 namespace Chair.BLL.BusinessLogic.ExecutorProfile
 {
@@ -15,12 +16,14 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
         private readonly IBaseRepository<ExecutorProfileEntity> _executorProfileRepository;
         private readonly IBaseRepository<ExecutorServiceEntity> _executorServiceRepository;
         private readonly IExecutorServiceBusinessLogic _executorServiceBusiness;
+        private readonly IExecutorPromotionBusinessLogic _executorPromotionBusiness;
         private readonly IBaseWithManyRepository<Contact> _contactRepository;
         private readonly UserInfo _userInfo;
         private readonly IMapper _mapper;
 
         public ExecutorProfileBusinessLogic(IBaseRepository<ExecutorProfileEntity> executorProfileRepository,
             IBaseRepository<ExecutorServiceEntity> executorServiceRepository,
+            IExecutorPromotionBusinessLogic executorPromotionBusiness,
             IExecutorServiceBusinessLogic executorServiceBussinesLogic,
             IBaseWithManyRepository<Contact> contactRepository,
             UserInfo userInfo,
@@ -29,6 +32,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
             _executorServiceRepository = executorServiceRepository;
             _executorProfileRepository = executorProfileRepository;
             _executorServiceBusiness = executorServiceBussinesLogic;
+            _executorPromotionBusiness = executorPromotionBusiness;
             _contactRepository = contactRepository;
             _userInfo = userInfo;
             _mapper = mapper;
@@ -54,6 +58,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
                 .FirstOrDefaultAsync();
             var executorProfileDto = _mapper.Map<ExecutorProfileDto>(executorProfile);
             executorProfileDto.Services = await _executorServiceBusiness.GetAllServicesByExecutorId(id);
+            executorProfileDto.Promotions = await _executorPromotionBusiness.GetAllPromotionsByExecutorId(id);
             return executorProfileDto;
         }
 
@@ -68,6 +73,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
                 .FirstAsync();
             var executorProfileDto = _mapper.Map<ExecutorProfileDto>(executorProfile);
             executorProfileDto.Services = await _executorServiceBusiness.GetAllServicesByExecutorId(executorProfile.Id);
+            executorProfileDto.Promotions = await _executorPromotionBusiness.GetAllPromotionsByExecutorId(executorProfile.Id);
             return executorProfileDto;
         }
 

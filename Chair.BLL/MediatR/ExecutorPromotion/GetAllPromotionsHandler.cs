@@ -18,7 +18,7 @@ namespace Chair.BLL.MediatR.ExecutorPromotion
         {
             var result = await _executorPromotionBusinessLogic.GetAllPromotions(request.Filter);
 
-            return result;
+            return (result, 0);
         }
     }
 }

@@ -185,7 +185,7 @@ namespace Chair.BLL.BusinessLogic.Order
             await _orderRepository.UpdateAsync(order);
 
             await _orderRepository.SaveChangesAsync();
-            await _hubContext.Clients.Users(new List<string>() { order.ClientId, order.ExecutorService.Executor.UserId }).SendAsync("ReceiveOrderNotification", "Заказ подтвержден");
+            //await _hubContext.Clients.Users(new List<string>() { order.ClientId, order.ExecutorService.Executor.UserId }).SendAsync("ReceiveOrderNotification", "Заказ подтвержден");
         }
     }
 }

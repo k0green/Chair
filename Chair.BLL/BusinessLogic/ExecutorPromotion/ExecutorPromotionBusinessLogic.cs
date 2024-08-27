@@ -73,6 +73,25 @@ namespace Chair.BLL.BusinessLogic.ExecutorPromotion
             return executorServiceDtos;
         }
 
+        public async Task<ExecutorPromotionDto> GetByIdPromotion(Guid id)
+        {
+            var executorServiceDto = _executorPromotionRepository
+                .GetAllByPredicateAsQueryable(x => x.Id == id)
+                .Select(x => new ExecutorPromotionDto
+                {
+                    Id = x.Id,
+                    Description = x.Description,
+                    ExecutorId = x.ExecutorId,
+                    ExecutorName = x.Executor.Name,
+                    Photos = x.Images.Select(i => new ShortMinioFileDto()
+                    {
+                        Id = i.Id,
+                        Url = i.MinioFile.Url
+                    }).ToList(),
+                }).First();
+            return executorServiceDto;
+        }
+
         public async Task<Guid> AddAsync(AddExecutorPromotionDto dto)
         {
             var existingEntity = await _executorPromotionRepository

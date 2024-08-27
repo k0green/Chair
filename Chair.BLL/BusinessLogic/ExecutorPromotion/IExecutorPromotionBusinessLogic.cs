@@ -6,7 +6,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorPromotion
     {
         Task<List<ExecutorPromotionDto>> GetAllPromotionsByExecutorId(Guid executorId);
         Task<List<ExecutorPromotionDto>> GetAllPromotions(FilterModel filter);
-
+        Task<ExecutorPromotionDto> GetByIdPromotion(Guid id);
         Task<Guid> AddAsync(AddExecutorPromotionDto dto);
 
         Task UpdateAsync(UpdateExecutorPromotionDto dto);

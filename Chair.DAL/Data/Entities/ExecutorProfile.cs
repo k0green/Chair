@@ -9,6 +9,7 @@
         public MinioFile Image { get; set; }
         public User User { get; set; }
         public ICollection<Contact> Contacts { get; set; }
+        public ICollection<ExecutorPromotion> Promotions { get; set; }
 
     }
 }

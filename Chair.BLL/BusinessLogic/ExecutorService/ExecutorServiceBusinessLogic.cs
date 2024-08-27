@@ -39,7 +39,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 
         public async Task<List<ExecutorServiceDto>> GetAllServicesByExecutorId(Guid executorId)
         {
-            var executorServiceDtos = _executorServiceRepository
+            var executorServiceDtos = await _executorServiceRepository
                 .GetAllByPredicateAsQueryable(x => x.ExecutorId == executorId)
                 .Where(x => !x.IsDeleted)
                 .Select(x => new ExecutorServiceDto
@@ -54,18 +54,23 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                             Lat = x.Lat,
                         }
                     },
-                    Orders = x.Orders.Any() ? x.Orders.Select(o => new OrderDto()
-                    {
-                        Id = o.Id,
-                        StarDate = o.StarDate,
-                        ClientId = o.ClientId,
-                    }).ToList() : new List<OrderDto>(),
+                    Orders = x.Orders.Any() ?
+                        x.Orders.Select(o => new OrderDto()
+                        {
+                            Id = o.Id,
+                            StarDate = o.StarDate,
+                            ClientId = o.ClientId,
+                            ExecutorApprove = o.ExecutorApprove,
+                            ClientApprove = o.ClientApprove,
+                            DiscountPrice = o.DiscountPrice,
+                            Duration = o.Duration,
+                            Price = o.Price,
+                        }).ToList() : new List<OrderDto>(),
                     Description = x.Description,
-                    Duration = x.Duration,
                     ExecutorId = x.ExecutorId,
                     ExecutorName = x.Executor.Name,
-                    Price = x.Price,
-                    Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 5,
+                    UserId = x.Executor.UserId,
+                    Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 0,
                     Photos = x.Images.Select(i => new ShortMinioFileDto()
                     {
                         Id = i.Id,
@@ -73,7 +78,8 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                     }).ToList(),
                     ServiceTypeId = x.ServiceTypeId,
                     ServiceTypeName = x.ServiceType.Name,
-                }).ToList();
+                    //HasPromotions = x.Executor.Promotions.Any(),
+                }).ToListAsync();
             return executorServiceDtos;
         }
         
@@ -153,20 +159,22 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                           Lat = x.Lat,
                       }
                     },
-                    Orders = x.Orders.Any() ? x.Orders.Select(o => new OrderDto()
+                    Orders = x.Orders.Any() ?
+                        x.Orders.Select(o => new OrderDto()
                     {
                         Id = o.Id,
                         StarDate = o.StarDate,
                         ClientId = o.ClientId,
                         ExecutorApprove = o.ExecutorApprove,
                         ClientApprove = o.ClientApprove,
+                        DiscountPrice = o.DiscountPrice,
+                        Duration = o.Duration,
+                        Price = o.Price,
                     }).ToList() : new List<OrderDto>(),
                     Description = x.Description,
-                    Duration = today + x.Duration.TimeOfDay,
                     ExecutorId = x.ExecutorId,
                     ExecutorName = x.Executor.Name,
                     UserId = x.Executor.UserId,
-                    Price = x.Price,
                     Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 0,
                     Photos = x.Images.Select(i => new ShortMinioFileDto()
                     {
@@ -175,6 +183,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                     }).ToList(),
                     ServiceTypeId = x.ServiceTypeId,
                     ServiceTypeName = x.ServiceType.Name,
+                    //HasPromotions = x.Executor.Promotions.Any(),
                 }).ToListAsync();
 
             if (filter != null)
@@ -239,18 +248,23 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                             Lat = x.Lat,
                         }
                     },
-                    Orders = x.Orders.Any() ? x.Orders.Select(o => new OrderDto()
-                    {
-                        Id = o.Id,
-                        StarDate = o.StarDate,
-                        ClientId = o.ClientId
-                    }).ToList() : new List<OrderDto>(),
+                    Orders = x.Orders.Any() ?
+                        x.Orders.Select(o => new OrderDto()
+                        {
+                            Id = o.Id,
+                            StarDate = o.StarDate,
+                            ClientId = o.ClientId,
+                            ExecutorApprove = o.ExecutorApprove,
+                            ClientApprove = o.ClientApprove,
+                            DiscountPrice = o.DiscountPrice,
+                            Duration = o.Duration,
+                            Price = o.Price,
+                        }).ToList() : new List<OrderDto>(),
                     Description = x.Description,
-                    Duration = x.Duration,
                     ExecutorId = x.ExecutorId,
                     ExecutorName = x.Executor.Name,
-                    Price = x.Price,
-                    Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 5,
+                    UserId = x.Executor.UserId,
+                    Rating = x.Reviews.Any() ? (decimal)x.Reviews.Average(r => r.Stars) : 0,
                     Photos = x.Images.Select(i => new ShortMinioFileDto()
                     {
                         Id = i.Id,
@@ -258,6 +272,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                     }).ToList(),
                     ServiceTypeId = x.ServiceTypeId,
                     ServiceTypeName = x.ServiceType.Name,
+                    //HasPromotions = x.Executor.Promotions.Any(),
                 }).FirstOrDefaultAsync();
             return executorServiceDto;
         }
@@ -331,7 +346,6 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 }
             }
         }
-
 
         public async Task RemoveAsync(Guid id)
         {

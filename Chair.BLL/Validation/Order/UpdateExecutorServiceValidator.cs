@@ -16,14 +16,14 @@ namespace Chair.BLL.Validation.Order
 
             RuleFor(x => x.UpdateOrderDto).NotNull().WithMessage("{PropertyName} can't be null");
 
-            RuleFor(x => x.UpdateOrderDto.ClientId).MustAsync(async (id, token) =>
+            /*RuleFor(x => x.UpdateOrderDto.ClientId).MustAsync(async (id, token) =>
             {
                 var user = await _context.Users
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.Id == id);
 
-                return user == null;
-            }).WithMessage("User with Id: {PropertyValue} doesn't exist");
+                return user != null;
+            }).WithMessage("User with Id: {PropertyValue} doesn't exist");*/
 
             RuleFor(x => x.UpdateOrderDto.ExecutorServiceId).MustAsync(async (id, token) =>
             {

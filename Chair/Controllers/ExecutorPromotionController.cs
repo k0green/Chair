@@ -1,5 +1,7 @@
 using Chair.BLL.CQRS.ExecutorPromotion;
+using Chair.BLL.CQRS.ServiceType;
 using Chair.BLL.Dto.ExecutorPromotion;
+using Chair.BLL.Dto.ExecutorService;
 using Chair.DAL.Data.Entities;
 using Chair.DAL.Extension.Models;
 using MediatR;
@@ -53,6 +55,17 @@ namespace Chair.Controllers
         {
             var command = new AddExecutorPromotionQuery() { AddExecutorPromotionDto = addExecutorPromotionDto };
             var result = await _mediator.Send(command);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("get-by-id/{id:guid}")]
+        [ProducesResponseType(typeof(ExecutorPromotionDto), 200)]
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        {
+            var query = new GetExecutorPromotionByIdQuery() { Id = id };
+            var result = await _mediator.Send(query);
 
             return Ok(result);
         }
