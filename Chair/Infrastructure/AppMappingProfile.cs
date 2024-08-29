@@ -2,6 +2,7 @@
 using Chair.BLL.Dto.Base;
 using Chair.BLL.Dto.Chat;
 using Chair.BLL.Dto.Contacts;
+using Chair.BLL.Dto.ExecutorPromotion;
 using Chair.BLL.Dto.ExecutorService;
 using Chair.BLL.Dto.Message;
 using Chair.BLL.Dto.Minio;
@@ -52,7 +53,18 @@ namespace Chair.Infrastructure
                 .ForMember(dest => dest.Lat, opt => opt.MapFrom(src => src.Place.Position.Lat));
             #endregion
 
+            #region ExecutorPromotion
 
+            CreateMap<ExecutorPromotion, ExecutorPromotionDto>()
+                .ForMember(dest => dest.ExecutorName, opt => opt.MapFrom(src => src.Executor.Name))
+                .ReverseMap();
+            CreateMap<ExecutorPromotion, ExecutorPromotionDto>()
+                .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Images))
+                .ReverseMap();
+            CreateMap<AddExecutorPromotionDto, ExecutorPromotion>();
+            CreateMap<UpdateExecutorPromotionDto, ExecutorPromotion>();
+            #endregion
+            
             #region ServiceType
 
             CreateMap<ServiceType, ServiceTypeDto>().ReverseMap();

@@ -24,7 +24,7 @@ namespace Chair.BLL.Dto.ExecutorService
         public DateTime Duration => Orders.Any() ? DateTime.MinValue + TimeSpan.FromMinutes(Orders.Select(service =>
                 (service.Duration - service.StarDate).TotalMinutes).Average()) : DateTime.MinValue;
         public Place Place { get; set; }
-        public bool HasDiscount => Orders.Any(x => x.DiscountPrice.HasValue);
+        public bool HasDiscount => Orders.Any(x => x.DiscountPrice.HasValue && x.StarDate >= DateTime.Now);
         public bool HasPromotions { get; set; }
         public List<ShortMinioFileDto> Photos { get; set; }
     }
