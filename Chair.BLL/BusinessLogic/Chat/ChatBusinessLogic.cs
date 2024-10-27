@@ -88,7 +88,7 @@ namespace Chair.BLL.BusinessLogic.Chat
                     RecipientId = profile.UserId,
                     RecipientName = profile.Name,
                     RecipientProfileId = profile.Id,
-                    RecipientProfileImg = profile.Image.Url,
+                    RecipientProfileImg = profile.Image?.Url,
                     Messages = new List<MessageDto>(),
                 };
             }

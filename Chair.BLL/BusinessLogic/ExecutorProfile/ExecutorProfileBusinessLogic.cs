@@ -55,6 +55,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorProfile
                 .GetAllByPredicateAsQueryable(x => x.Id == id)
                 .Include(x => x.User)
                 .Include(x=>x.Contacts)
+                .Include(x=>x.Image)
                 .FirstOrDefaultAsync();
             var executorProfileDto = _mapper.Map<ExecutorProfileDto>(executorProfile);
             executorProfileDto.Services = await _executorServiceBusiness.GetAllServicesByExecutorId(id);
