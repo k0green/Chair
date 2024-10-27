@@ -213,6 +213,16 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                     }
                     filter.Filter.Filters = filter.Filter.Filters.Except(filters).ToList();
                 }
+                if (filter.Filter != null && filter.Filter.Filters.Any(x => x.Field == "place.address"))
+                {
+                    var filters = filter.Filter.Filters.Where(x => x.Field == "place.address").Select(x => x).ToList();
+                    foreach(var item in filters)
+                    {
+                        if(item.Value != null)
+                            executorServiceDtos = executorServiceDtos.Where(x => x.Place.Address.Contains(item.Value.ToString())).ToList();
+                    }
+                    filter.Filter.Filters = filter.Filter.Filters.Except(filters).ToList();
+                }
             }
 
             var totalCount = executorServiceDtos.Count;

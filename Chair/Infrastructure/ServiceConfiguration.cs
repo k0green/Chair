@@ -8,6 +8,7 @@ using Chair.BLL.BusinessLogic.Minio;
 using Chair.BLL.BusinessLogic.Order;
 using Chair.BLL.BusinessLogic.Review;
 using Chair.BLL.BusinessLogic.ServiceType;
+using Chair.BLL.BusinessLogic.YandexCloud;
 using Chair.DAL.Data.Entities;
 using Chair.DAL.Repositories.Base;
 using MediatR;
@@ -28,6 +29,7 @@ public static class ServiceConfiguration
         services.AddScoped<IChatBusinessLogic, ChatBusinessLogic>();
         services.AddScoped<IMessageBusinessLogic, MessageBusinessLogic>();
         services.AddScoped<IMinioBusinessLogic, MinioBusinessLogic>();
+        services.AddScoped<IYandexCloudBusinessLogic, YandexCloudBusinessLogic>();
 
         services.AddScoped<UserInfo>();
 
