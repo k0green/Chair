@@ -6,5 +6,6 @@ namespace Chair.BLL.Dto.ServiceType
     {
         public string Name { get; set; }
         public string Icon { get; set; }
+        public Guid? ParentId { get; set; }
     }
 }

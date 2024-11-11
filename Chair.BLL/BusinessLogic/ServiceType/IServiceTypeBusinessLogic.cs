@@ -12,8 +12,8 @@ namespace Chair.BLL.BusinessLogic.ServiceType
 {
     public interface IServiceTypeBusinessLogic
     {
-        Task<List<ServiceTypeDto>> GetAllServiceTypes();
-        Task<List<ServiceTypeDto>> GetPopularServiceTypes(FilterModel filter);
+        Task<List<ServiceTypeDto>> GetAllServiceTypes(Guid? parentId);
+        Task<List<ServiceTypeDto>> GetPopularServiceTypes(FilterModel filter, Guid? parentId);
         Task<ServiceTypeDto> GetServiceTypeById(Guid id);
         Task<Guid> AddAsync(AddServiceTypeDto dto);
         Task UpdateAsync(ServiceTypeDto dto);

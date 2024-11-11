@@ -26,9 +26,12 @@ namespace Chair.Controllers
         [HttpGet]
         [Route("get-all")]
         [ProducesResponseType(typeof(List<ServiceTypeDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]Guid? parentId)
         {
-            var query = new GetAllServiceTypesQuery();
+            var query = new GetAllServiceTypesQuery()
+            {
+                ParentId = parentId,
+            };
             var result = await _mediator.Send(query);
 
             return Ok(result);
@@ -37,10 +40,11 @@ namespace Chair.Controllers
         [HttpPost]
         [Route("popular")]
         [ProducesResponseType(typeof(List<ServiceTypeDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPopular([FromBody] FilterModel filter)
+        public async Task<IActionResult> GetPopular([FromBody] FilterModel filter, [FromQuery]Guid? parentId)
         {
             var query = new GetPopularServiceTypesQuery()
             {
+                ParentId = parentId,
                 Filter = filter,
             };
             var result = await _mediator.Send(query);

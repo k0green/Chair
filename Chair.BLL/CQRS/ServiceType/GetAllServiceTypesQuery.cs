@@ -7,5 +7,6 @@ namespace Chair.BLL.CQRS.ServiceType
 {
     public class GetAllServiceTypesQuery : IRequest<List<ServiceTypeDto>>
     {
+        public Guid? ParentId { get; set; } 
     }
 }

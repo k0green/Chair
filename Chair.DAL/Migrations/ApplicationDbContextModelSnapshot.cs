@@ -33,7 +33,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Chats", (string)null);
+                    b.ToTable("Chats");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.Contact", b =>
@@ -56,7 +56,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("ExecutorProfileId");
 
-                    b.ToTable("Contacts", (string)null);
+                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.ExecutorProfile", b =>
@@ -86,7 +86,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ExecutorProfiles", (string)null);
+                    b.ToTable("ExecutorProfiles");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.ExecutorPromotion", b =>
@@ -109,7 +109,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("ExecutorId");
 
-                    b.ToTable("ExecutorPromotion", (string)null);
+                    b.ToTable("ExecutorPromotion");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.ExecutorService", b =>
@@ -158,7 +158,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ExecutorServices", (string)null);
+                    b.ToTable("ExecutorServices");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.Image", b =>
@@ -181,7 +181,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("ExecutorServiceId");
 
-                    b.ToTable("Images", (string)null);
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.Message", b =>
@@ -233,7 +233,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.MinioFile", b =>
@@ -255,7 +255,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MinioFiles", (string)null);
+                    b.ToTable("MinioFiles");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.Order", b =>
@@ -300,7 +300,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("ExecutorServiceId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.ProductFile<Chair.DAL.Data.Entities.ExecutorPromotion>", b =>
@@ -318,7 +318,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("MinioFileId");
 
-                    b.ToTable("ProductFile<ExecutorPromotion>", (string)null);
+                    b.ToTable("ProductFile<ExecutorPromotion>");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.ProductFile<Chair.DAL.Data.Entities.ExecutorService>", b =>
@@ -336,7 +336,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("MinioFileId");
 
-                    b.ToTable("ExecutorServiceFiles", (string)null);
+                    b.ToTable("ExecutorServiceFiles");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.ProductFile<Chair.DAL.Data.Entities.Review>", b =>
@@ -354,7 +354,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("MinioFileId");
 
-                    b.ToTable("ReviewFiles", (string)null);
+                    b.ToTable("ReviewFiles");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.Review", b =>
@@ -392,7 +392,7 @@ namespace Chair.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.ServiceType", b =>
@@ -409,9 +409,14 @@ namespace Chair.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceTypes", (string)null);
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("ServiceTypes");
                 });
 
             modelBuilder.Entity("Chair.DAL.Data.Entities.User", b =>
@@ -813,6 +818,15 @@ namespace Chair.DAL.Migrations
                     b.Navigation("ExecutorService");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Chair.DAL.Data.Entities.ServiceType", b =>
+                {
+                    b.HasOne("Chair.DAL.Data.Entities.ServiceType", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

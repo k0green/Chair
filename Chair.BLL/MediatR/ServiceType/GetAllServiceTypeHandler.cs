@@ -16,7 +16,7 @@ namespace Chair.BLL.MediatR.ServiceType
 
         public async Task<List<ServiceTypeDto>> Handle(GetAllServiceTypesQuery request, CancellationToken cancellationToken)
         {
-            var result = await _serviceTypeBusinessLogic.GetAllServiceTypes();
+            var result = await _serviceTypeBusinessLogic.GetAllServiceTypes(request.ParentId);
 
             return result;
         }

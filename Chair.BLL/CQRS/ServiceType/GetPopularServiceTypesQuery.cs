@@ -8,6 +8,7 @@ namespace Chair.BLL.CQRS.ServiceType
 {
     public class GetPopularServiceTypesQuery : IRequest<List<ServiceTypeDto>>
     {
+        public Guid? ParentId { get; set; } 
         public FilterModel Filter { get; set; }
     }
 }
