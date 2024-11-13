@@ -32,17 +32,21 @@ namespace Chair.BLL.BusinessLogic.ServiceType
             return serviceTypesDtos;
         }
 
-        public async Task<List<ServiceTypeDto>> GetPopularServiceTypes(FilterModel filter, Guid? parentId)
+        public async Task<List<ServiceTypeDto>> GetPopularServiceTypes(FilterModel filter)
         {
             var serviceTypes = await _serviceTypeRepository
                 .GetAllAsync()
                 .Where(x => x.ExecutorServices.ToList().Count > 0)
-                .WhereIf(parentId != null, x => x.ParentId == (Guid)parentId)
-                .WhereIf(parentId == null, x => x.ParentId == null)
+                .Where(x => x.ParentId != null)
                 .OrderByDescending(x => x.ExecutorServices.ToList().Count)
+                .Select(x => new ServiceTypeDto
+                {
+                    Id = (Guid)x.ParentId,
+                    Name = x.Parent.Name,
+                    Icon = x.Parent.Icon,
+                })
                 .ToFilterView(filter).ToListAsync();
-            var serviceTypesDtos = _mapper.Map<List<ServiceTypeDto>>(serviceTypes);
-            return serviceTypesDtos;
+            return serviceTypes;
         }
 
         public async Task<ServiceTypeDto> GetServiceTypeById(Guid id)

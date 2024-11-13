@@ -110,9 +110,9 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             return items.Services.First(x => x.Id == resultId);
         }
         
-        public async Task<(List<GroupExecutorServiceDto>, int)> GetAllServicesByTypeId(Guid serviceTypeId, FilterModelWithPeriods filter)
+        public async Task<(List<GroupExecutorServiceDto>, int)> GetAllServicesByTypeId(Guid? serviceTypeId, FilterModelWithPeriods filter)
         {
-            return await GetAllServicesByPredicate(x => x.ServiceTypeId == serviceTypeId, filter: filter);
+            return await GetAllServicesByPredicate(serviceTypeId != null ? x => x.ServiceTypeId == serviceTypeId : null, filter: filter, isMain: serviceTypeId == null);
         }
         
         public async Task<List<LookupDto>> GetAllServicesNamesByUserId()
@@ -140,7 +140,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
 
         private async Task<(List<GroupExecutorServiceDto>, int)> 
             GetAllServicesByPredicate(Expression<Func<DAL.Data.Entities.ExecutorService, bool>>? predicate = null,
-                FilterModelWithPeriods? filter = null)
+                FilterModelWithPeriods? filter = null, bool isMain = false)
         {
             var today = DateTime.Today;
 
@@ -229,6 +229,16 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
  
             executorServiceDtos = executorServiceDtos.AsQueryable().ToFilterView(filter, out totalCount).ToList();
 
+            if (isMain)
+            {
+                return (new List<GroupExecutorServiceDto>{new GroupExecutorServiceDto
+                {
+                    Id = Guid.NewGuid(),
+                    ServiceTypeName = "",
+                    Services = executorServiceDtos
+                }}, totalCount);
+            }
+            
             var groupedServices = executorServiceDtos
                 .GroupBy(x => new { x.ServiceTypeId, x.ServiceTypeName })
                 .Select(group => new GroupExecutorServiceDto

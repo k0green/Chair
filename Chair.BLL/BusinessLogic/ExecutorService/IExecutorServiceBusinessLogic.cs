@@ -14,7 +14,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
     public interface IExecutorServiceBusinessLogic
     {
         Task<List<ExecutorServiceDto>> GetAllServicesByExecutorId(Guid executorId);
-        Task<(List<GroupExecutorServiceDto>, int)> GetAllServicesByTypeId(Guid executorId, FilterModelWithPeriods filter);
+        Task<(List<GroupExecutorServiceDto>, int)> GetAllServicesByTypeId(Guid? executorId, FilterModelWithPeriods filter);
         Task<(List<GroupExecutorServiceDto>, int)> GetAllServices(FilterModelWithPeriods filter);
         Task<ExecutorServiceDto> GetExecutorServiceById(Guid id);
 

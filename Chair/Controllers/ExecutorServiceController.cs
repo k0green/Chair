@@ -38,10 +38,10 @@ namespace Chair.Controllers
         }
 
         [HttpPost]
-        [Route("type/{typeId:guid}")]
+        [Route("type")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(List<ExecutorServiceDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllByTypeId([FromRoute] Guid typeId, [FromBody]FilterModelWithPeriods filter)
+        public async Task<IActionResult> GetAllByTypeId([FromQuery] Guid? typeId, [FromBody]FilterModelWithPeriods filter)
         {
             var query = new GetAllServicesByTypeIdQuery()
             {
