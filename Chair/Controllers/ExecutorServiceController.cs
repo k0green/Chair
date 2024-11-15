@@ -93,6 +93,7 @@ namespace Chair.Controllers
 
         [HttpGet]
         [Route("get-by-id/{id:guid}")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ExecutorServiceDto), 200)]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {

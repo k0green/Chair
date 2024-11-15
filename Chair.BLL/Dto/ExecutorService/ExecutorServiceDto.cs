@@ -14,14 +14,14 @@ namespace Chair.BLL.Dto.ExecutorService
         public string ExecutorName { get; set; }
         public string Description { get; set; }
         public decimal Rating { get; set; }
-        public decimal Price => Orders.Any() ? decimal.Round(Orders.Average(x => x.Price ?? 0), 2) : 0;
+        public decimal Price => Orders.Any() ? decimal.Round(Orders.Where(x => x.StarDate >= DateTime.UtcNow).Average(x => x.Price ?? 0), 2) : 0;
         public bool IsDeleted { get; set; }
-        public int AvailableSlots => Orders.Count(x => string.IsNullOrEmpty(x.ClientId) && x.StarDate >= DateTime.Now);
+        public int AvailableSlots => Orders.Count(x => string.IsNullOrEmpty(x.ClientId) && x.StarDate >= DateTime.UtcNow);
         public int SuccessOrdersAmount => Orders.Count(x => !string.IsNullOrEmpty(x.ClientId)
                                                             && x.StarDate <= DateTime.Now
                                                             && x is { ClientApprove: true, ExecutorApprove: true });
         [JsonIgnore]public List<OrderDto> Orders { get; set; }
-        public DateTime Duration => Orders.Any() ? DateTime.MinValue + TimeSpan.FromMinutes(Orders.Select(service =>
+        public DateTime Duration => Orders.Any() ? DateTime.MinValue + TimeSpan.FromMinutes(Orders.Where(x => x.StarDate >= DateTime.UtcNow).Select(service =>
                 (service.Duration - service.StarDate).TotalMinutes).Average()) : DateTime.MinValue;
         public Place Place { get; set; }
         public bool HasDiscount => Orders.Any(x => x.DiscountPrice.HasValue && x.StarDate >= DateTime.Now);
