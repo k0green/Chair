@@ -61,7 +61,7 @@ namespace Chair.BLL.BusinessLogic.YandexCloud
             };
 
             var url = _s3Client.GetPreSignedURL(presignedUrlRequest);
-            entity.Url = url;
+            entity.Url = url.Split("?").First();
 
             // Save file metadata to the database
             await _fileRepository.AddAsync(entity);
