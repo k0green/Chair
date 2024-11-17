@@ -120,10 +120,11 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
             var userId = await _userInfo.GetUserIdFromToken();
             return await _executorServiceRepository
                 .GetAllByPredicateAsQueryable(x=>x.Executor.UserId == userId)
+                .Where(x => x.ServiceType.ParentId != null)
                 .Select(x=> new LookupDto()
                 {
                     Id = x.Id,
-                    Name = x.ServiceType.Name
+                    Name = $"{x.ServiceType.Name} ({x.ServiceType.Parent.Name})"
                 }).ToListAsync();
         }
         
