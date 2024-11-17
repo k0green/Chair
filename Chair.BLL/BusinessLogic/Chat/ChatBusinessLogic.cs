@@ -33,7 +33,7 @@ namespace Chair.BLL.BusinessLogic.Chat
         {
             var userId = await _userInfo.GetUserIdFromToken();
 
-            var profiles = await _executorProfileRepository.GetAllByPredicateAsQueryable().ToListAsync();
+            var profiles = await _executorProfileRepository.GetAllByPredicateAsQueryable().Include(x => x.Image).ToListAsync();
 
             var chatIds = await _messageRepository
                 .GetAllByPredicateAsQueryable(x => x.SenderId == userId || x.RecipientId == userId)
@@ -71,7 +71,7 @@ namespace Chair.BLL.BusinessLogic.Chat
         public async Task<ChatDto> GetChatForProfile(Guid profileId)
         {
             var userId = await _userInfo.GetUserIdFromToken();
-            var profile = _executorProfileRepository.GetAllByPredicateAsQueryable(e => e.Id == profileId).First();
+            var profile = _executorProfileRepository.GetAllByPredicateAsQueryable(e => e.Id == profileId).Include(x => x.Image).First();
 
             var message = await _messageRepository
                 .GetAllByPredicateAsQueryable(x => x.RecipientId == profile.UserId && x.SenderId == userId 
