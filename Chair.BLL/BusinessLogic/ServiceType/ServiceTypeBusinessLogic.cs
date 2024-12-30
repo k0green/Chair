@@ -23,6 +23,7 @@ namespace Chair.BLL.BusinessLogic.ServiceType
         {
             var serviceTypes = await _serviceTypeRepository
                 .GetAllAsync()
+                .Include(x => x.Parent)
                 //.Where(x => x.ExecutorServices.ToList().Count > 0)
                 .WhereIf(parentId != null, x => x.ParentId == (Guid)parentId)
                 .WhereIf(parentId == null, x => x.ParentId == null)

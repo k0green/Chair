@@ -26,7 +26,7 @@ namespace Chair.BLL.Validation.Order
                 return order != null;
             }).WithMessage("Order with Id: {PropertyValue} doesn't exist");
 
-            RuleFor(x => x.OrderId).MustAsync(async (id, token) =>
+            /*RuleFor(x => x.OrderId).MustAsync(async (id, token) =>
             {
                 var dto = await _context.Orders.FirstAsync(x => x.Id == id);
                 if (!dto.ExecutorApprove)
@@ -37,7 +37,7 @@ namespace Chair.BLL.Validation.Order
                 }
 
                 return true;
-            }).WithMessage("You cannot confirm the order because the executor has not confirmed it");
+            }).WithMessage("You cannot confirm the order because the executor has not confirmed it");*/
 
             RuleFor(x => x.OrderId).MustAsync(async (id, token) =>
             {

@@ -48,13 +48,13 @@ namespace Chair.BLL.BusinessLogic.Order
         public async Task<UnconfirmedOrdersDto> GetUnconfirmedOrdersForExecutor()
         {
             var userId = await _userInfo.GetUserIdFromToken();
-            return await GetUnconfirmedOrdersUsePredicate(x => x.ExecutorService.Executor.UserId == userId && !x.ClientApprove);
+            return await GetUnconfirmedOrdersUsePredicate(x => x.ExecutorService.Executor.UserId == userId);
         }
 
         public async Task<UnconfirmedOrdersDto> GetUnconfirmedOrdersForClient()
         {
             var userId = await _userInfo.GetUserIdFromToken();
-            return await GetUnconfirmedOrdersUsePredicate(x => x.ClientId == userId && !x.ExecutorApprove);
+            return await GetUnconfirmedOrdersUsePredicate(x => x.ClientId == userId);
         }
 
         public async Task<OrderDto> GetOrderById(Guid id)
@@ -140,7 +140,9 @@ namespace Chair.BLL.BusinessLogic.Order
 
         public async Task ApproveOrderAsync(Guid orderId, bool IsExecutor)
         {
-            var order = await _orderRepository.GetByIdAsync(orderId);
+            var order = await _orderRepository.GetAllByPredicateAsQueryable()
+                .Include(x => x.ExecutorService.Executor)
+                .FirstOrDefaultAsync(x => x.Id == orderId);
             if (order == null)
                 throw new ArgumentNullException("Order doesnt exist");
             string userId;

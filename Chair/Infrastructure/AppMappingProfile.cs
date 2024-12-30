@@ -67,7 +67,8 @@ namespace Chair.Infrastructure
             
             #region ServiceType
 
-            CreateMap<ServiceType, ServiceTypeDto>().ReverseMap();
+            CreateMap<ServiceType, ServiceTypeDto>()
+                .ForMember(dest => dest.ParentName, opt => opt.MapFrom(src => src.Parent.Name)).ReverseMap();
             CreateMap<ServiceType, AddServiceTypeDto>().ReverseMap();
 
             #endregion
@@ -77,6 +78,7 @@ namespace Chair.Infrastructure
             CreateMap<ExecutorProfile, ExecutorProfileDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.AccountName))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image.Url))
+                .ForMember(dest => dest.ImageId, opt => opt.MapFrom(src => src.Image.Id))
                 .ForMember(dest => dest.Contacts, opt => opt.MapFrom(src => src.Contacts))
                 .ReverseMap();
             CreateMap<ExecutorProfile, UpdateExecutorProfileDto>().ReverseMap();
