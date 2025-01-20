@@ -301,7 +301,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
         public async Task<Guid> AddAsync(AddExecutorServiceDto dto)
         {
             var existingEntity = await _executorServiceRepository
-                .GetAllByPredicateAsQueryable(x => x.ExecutorId == dto.ExecutorId)
+                .GetAllByPredicateAsQueryable(x => x.ExecutorId == dto.ExecutorId && !x.IsDeleted)
                 .FirstOrDefaultAsync(x => x.ServiceTypeId == dto.ServiceTypeId);
             if (existingEntity != null)
             {
@@ -340,7 +340,7 @@ namespace Chair.BLL.BusinessLogic.ExecutorService
                 .GetAllByPredicateAsQueryable(x => x.ProductId == entity.Id)
                 .Select(x=>x.Id)
                 .ToListAsync();
-            if (dto.RemovePhotoIds.Any())
+            if (dto.RemovePhotoIds != null && dto.RemovePhotoIds.Any())
             {
                 var deletePhotos = await _fileRepository
                     .GetAllByPredicateAsQueryable(x => dto.RemovePhotoIds.Contains(x.Id))

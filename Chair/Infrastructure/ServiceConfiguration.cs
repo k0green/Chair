@@ -9,6 +9,7 @@ using Chair.BLL.BusinessLogic.Order;
 using Chair.BLL.BusinessLogic.Review;
 using Chair.BLL.BusinessLogic.ServiceType;
 using Chair.BLL.BusinessLogic.YandexCloud;
+using Chair.BLL.Extensions.Jobs;
 using Chair.DAL.Data.Entities;
 using Chair.DAL.Repositories.Base;
 using MediatR;
@@ -35,5 +36,6 @@ public static class ServiceConfiguration
 
         services.AddScoped(typeof(IBaseWithManyRepository<>), typeof(BaseWithManyRepository<>));
         services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+        services.AddTransient<EmailJob>();
     }
 }

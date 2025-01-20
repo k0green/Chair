@@ -27,6 +27,15 @@ namespace Chair.BLL.Validation.ExecutorService
 
                 return userProfile != null;
             }).WithMessage("user profile with id: {PropertyValue} doesn't exists");
+
+            RuleFor(x => x.AddExecutorServiceDto).MustAsync(async (dto, token) =>
+            {
+                var existingEntity = await _context.ExecutorServices
+                    .Where(x => x.ExecutorId == dto.ExecutorId && !x.IsDeleted)
+                    .FirstOrDefaultAsync(x => x.ServiceTypeId == dto.ServiceTypeId);
+
+                return existingEntity == null;
+            }).WithMessage("Карточка услуги с таким типом уже существует");
         }
     }
 }

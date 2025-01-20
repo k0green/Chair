@@ -1,5 +1,6 @@
 using Chair.BLL.Commons;
 using Chair.BLL.Extensions.FluentValidation;
+using Chair.BLL.Extensions.Jobs;
 using Chair.BLL.Extensions.MediatR;
 using Chair.DAL.Data;
 using Chair.DAL.Data.Entities;
@@ -12,10 +13,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Minio;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Impl.Matchers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 var frontServer = builder.Configuration.GetConnectionString("FrontServer");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -128,6 +132,31 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+
+    q.UsePersistentStore(options =>
+    {
+        options.UseProperties = true;
+
+        options.UseSqlServer(sqlOptions =>
+        {
+            sqlOptions.ConnectionString = connectionString;
+        });
+
+        options.UseClustering();
+        options.UseJsonSerializer();
+    });
+});
+
+
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
+
+
 builder.Services.AddSingleton<MinioClient>(provider =>
 {
     IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
@@ -143,6 +172,37 @@ builder.Services.AddSingleton<MinioClient>(provider =>
 });
 
 var app = builder.Build();
+
+app.Lifetime.ApplicationStarted.Register(async () =>
+{
+    var scheduler = await StdSchedulerFactory.GetDefaultScheduler();
+    await scheduler.Start();
+
+    // Вызов метода восстановления задач
+    await RestoreScheduledJobs(scheduler);
+});
+
+async Task RestoreScheduledJobs(IScheduler scheduler)
+{
+    // Получаем все задания из любого группы
+    var jobKeys = await scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup());
+
+    foreach (var jobKey in jobKeys)
+    {
+        // Получаем триггеры, связанные с этим заданием
+        var triggers = await scheduler.GetTriggersOfJob(jobKey);
+
+        foreach (var trigger in triggers)
+        {
+            // Проверяем, есть ли следующее время выполнения
+            if (trigger.GetNextFireTimeUtc() != null)
+            {
+                // Добавляем триггер обратно в планировщик
+                await scheduler.ScheduleJob(trigger);
+            }
+        }
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {
